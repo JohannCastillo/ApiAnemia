@@ -35,7 +35,7 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not PRODUCTION
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["https://apianemia.onrender.com", 'localhost', '127.0.0.1']
 
 
 # Application definition
