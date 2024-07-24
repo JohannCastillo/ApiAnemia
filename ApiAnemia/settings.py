@@ -18,6 +18,8 @@ import os
 load_dotenv()
 
 PRODUCTION = os.getenv('DEVELOPMENT', 'False') == 'True'
+BUCKET_URL= os.getenv('S3_BUCKET_URL')
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -124,7 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -137,3 +139,26 @@ else:
         "http://dominio.org",
         "https://dominio.org",
     ] 
+
+# Cargar modelos en primera carga
+import skops.io as sio
+import os 
+from io import BytesIO
+import requests
+
+MODEL_DIAGNOSTICO = None
+
+if PRODUCTION: 
+    try:
+        print("cargando el modelo obj1 en producción desde el bucket ...")
+        response = requests.get(BUCKET_URL)
+        response.raise_for_status()
+        model_data = response.content
+        MODEL_DIAGNOSTICO = sio.load(BytesIO(model_data))
+    except requests.exceptions.RequestException as e:
+        print(f"Error al descargar el modelo obj1: {e}")
+else: 
+    # Cargar en local
+    print("cargando el modelo en local ...")
+    model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')  
+    MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
