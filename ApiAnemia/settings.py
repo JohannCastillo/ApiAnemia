@@ -18,7 +18,7 @@ import sys
 
 load_dotenv()
 
-PRODUCTION = os.getenv('DEVELOPMENT', 'False') == 'True'
+PRODUCTION = os.getenv('DEVELOPMENT', 'True') == 'True'
 BUCKET_URL= os.getenv('S3_BUCKET_URL')
 
 
