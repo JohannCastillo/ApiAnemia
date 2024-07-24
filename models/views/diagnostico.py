@@ -14,8 +14,7 @@ def index(request):
     persona = PersonaSerializer(data=request.data)
     persona.is_valid(raise_exception=True)
 
-    print(persona.data)
-
+    # print(persona.data)
     try: 
         resultado = predict(modelo, persona.data)
         #TODO guardar diagnóstico en la base de datos

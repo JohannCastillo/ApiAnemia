@@ -14,6 +14,7 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 import os
+import sys
 
 load_dotenv()
 
@@ -148,17 +149,19 @@ import requests
 
 MODEL_DIAGNOSTICO = None
 
-if PRODUCTION: 
-    try:
-        print("cargando el modelo obj1 en producción desde el bucket ...")
-        response = requests.get(BUCKET_URL)
-        response.raise_for_status()
-        model_data = response.content
-        MODEL_DIAGNOSTICO = sio.load(BytesIO(model_data))
-    except requests.exceptions.RequestException as e:
-        print(f"Error al descargar el modelo obj1: {e}")
-else: 
-    # Cargar en local
-    print("cargando el modelo en local ...")
-    model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')  
-    MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
+# Evitar la carga del modelo en migraciones
+if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
+    if PRODUCTION: 
+        try:
+            print("cargando el modelo obj1 en producción desde el bucket ...")
+            response = requests.get(BUCKET_URL)
+            response.raise_for_status()
+            model_data = response.content
+            MODEL_DIAGNOSTICO = sio.load(BytesIO(model_data))
+        except requests.exceptions.RequestException as e:
+            print(f"Error al descargar el modelo obj1: {e}")
+    else: 
+        # Cargar en local
+        print("cargando el modelo en local ...")
+        model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')  
+        MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
