@@ -1,1 +1,21 @@
-/.venv
+.idea/*
+.venv
+# Python
+venv/
+
+# Python Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+.env
+media
+
+# Python Installer logs 
+pip-log.txt 
+pip-delete-this-directory.txt 
+
+# migrations
+**/migrations/*
+!**/migrations/__init__.py
