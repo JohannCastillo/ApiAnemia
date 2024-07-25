@@ -149,6 +149,7 @@ from io import BytesIO
 import requests
 
 MODEL_DIAGNOSTICO = None
+MODEL_DIETA = None
 
 # Evitar la carga del modelo en migraciones
 if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
