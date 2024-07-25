@@ -20,6 +20,7 @@ load_dotenv()
 
 PRODUCTION = os.getenv('DEVELOPMENT', 'True') == 'True'
 BUCKET_URL= os.getenv('S3_BUCKET_URL')
+BUCKET_URL_3= os.getenv('S3_BUCKET_URL_3')
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -158,6 +159,11 @@ if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
             response.raise_for_status()
             model_data = response.content
             MODEL_DIAGNOSTICO = sio.load(BytesIO(model_data))
+
+            response = requests.get(BUCKET_URL_3)
+            response.raise_for_status()
+            model_data = response.content
+            MODEL_DIETA = sio.load(BytesIO(model_data))
         except requests.exceptions.RequestException as e:
             print(f"Error al descargar el modelo obj1: {e}")
     else: 
@@ -165,3 +171,8 @@ if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
         print("cargando el modelo en local ...")
         model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')  
         MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
+
+        response = requests.get(BUCKET_URL_3)
+        response.raise_for_status()
+        model_data = response.content
+        MODEL_DIETA = sio.load(BytesIO(model_data))
