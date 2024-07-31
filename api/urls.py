@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import paciente, diagnostico, apoderado;
+from .views import paciente, diagnostico, apoderado, ubigeos;
 
 urlpatterns = [
     # Pacientes
@@ -17,4 +17,11 @@ urlpatterns = [
     path('apoderados/usuario/<int:user_id>', view=apoderado.get_apoderado_by_user_id),
     path('apoderados/create', view=apoderado.create),
     path('apoderados/<int:id>/update', view=apoderado.update),
+
+    # Ubigeos
+    path('ubigeos', view=ubigeos.index),
+    path('provincias', view=ubigeos.provincias),
+    path('departamentos', view=ubigeos.departamentos),
+    path('distritos', view=ubigeos.distritos),
+    path('distritos/provincia/<int:provincia_id>', view=ubigeos.get_distrito_by_provincia_id),
 ]
