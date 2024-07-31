@@ -9,4 +9,8 @@ pip install -r requirements.txt
 # python manage.py collectstatic --no-input
 
 # Apply any outstanding database migrations
+python manage.py makemigrations
 python manage.py migrate
+
+# Load ubigeos data
+python scripts/load_ubigeos.py
