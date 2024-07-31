@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Departamento(models.Model):
     departamento = models.CharField(max_length=100)
@@ -14,11 +15,21 @@ class Distrito(models.Model):
     provincia = models.ForeignKey(Provincia, on_delete=models.CASCADE)
 
 
-class Persona(models.Model):
+class Apoderado(models.Model):
+    nombre = models.CharField(max_length=100, null=False)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+
+
+class Paciente(models.Model):
     nombre = models.CharField(max_length=100, null=False)
     sexo = models.CharField(max_length=1, choices=(('M', 'Masculino'), ('F', 'Femenino')), null=False)
+    fecha_nacimiento = models.DateField(null=False)
     distrito = models.ForeignKey(Distrito, on_delete=models.CASCADE, null=False)
-
+    
+class Apoderado_Paciente(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null=False)
+    apoderado = models.ForeignKey(Apoderado, on_delete=models.CASCADE, null=False)
+    
 
 class Diagnostico(models.Model):
     edad_meses = models.IntegerField(null=False)
@@ -30,4 +41,4 @@ class Diagnostico(models.Model):
     dx_anemia = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    persona = models.ForeignKey(Persona, on_delete=models.CASCADE)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)

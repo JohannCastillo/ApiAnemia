@@ -1,3 +1,9 @@
+import datetime
+
+
+"""
+    Funciones para codificar y decodificar los datos de entrada y salida del modelo
+"""
 def decode_output(cod_prediccion, label_encoders):
     return label_encoders.get('Dx_anemia').classes_[cod_prediccion]
 
@@ -18,3 +24,14 @@ def predict(modelo, input_data):
   # Predecir
   prediction = model.predict(input_data_scaled)
   return decode_output(prediction[0], label_encoders=label_encoders)
+
+"""
+    Calcular edad en meses a partir de la fecha de nacimiento
+"""
+
+def calcular_edad_en_meses(fecha_nacimiento):
+    hoy = datetime.date.today()
+    edad = hoy.year - fecha_nacimiento.year
+    meses = hoy.month - fecha_nacimiento.month
+    edad_meses = edad * 12 + meses
+    return edad_meses
