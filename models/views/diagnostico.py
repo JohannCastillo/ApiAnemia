@@ -1,8 +1,11 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
-from models.utils.diagnostico_utils import predict
-from models.serializers.Persona import PersonaSerializer
+from models.utils.diagnostico_utils import predict, calcular_edad_en_meses
+from models.serializers.Diagnostico import DiagnosticoSerializer
+from api.models import Diagnostico, Paciente
+import datetime
+
 
 modelo = settings.MODEL_DIAGNOSTICO
 
@@ -11,18 +14,65 @@ modelo = settings.MODEL_DIAGNOSTICO
 
 @api_view(['POST'])
 def index(request):
-    persona = PersonaSerializer(data=request.data)
-    persona.is_valid(raise_exception=True)
+    evaluacion = DiagnosticoSerializer(data=request.data)
+    evaluacion.is_valid(raise_exception=True)
 
-    # print(persona.data)
     try: 
-        resultado = predict(modelo, persona.data)
-        #TODO guardar diagnóstico en la base de datos
+        paciente = Paciente.objects.filter(id=evaluacion.data['Paciente']).first()
+        if not paciente:
+            raise ValueError(f"El paciente no se encuentra registrado")
+     
+        # Retirar de evaluacion.data que no se utilizand como entrada para el modelo
+        input = {
+            "Sexo":  paciente.sexo,
+            "EdadMeses": calcular_edad_en_meses(paciente.fecha_nacimiento),
+            "Peso" : evaluacion.data['Peso'],
+            "Talla":  evaluacion.data['Talla'],
+            "Hemoglobina":  evaluacion.data['Hemoglobina'],
+            "Cred" : 1 if evaluacion.data['Cred'] else 0,
+            "Suplementacion": 1 if evaluacion.data['Suplementacion'] else 0,
+            "ProvinciaREN":  paciente.distrito.provincia.provincia,
+            "DistritoREN":  paciente.distrito.distrito   
+        }
+
+        resultado = predict(modelo, input)
         
-        return Response({
+        diagnostico = save_diagnostico(evaluacion, resultado, paciente)
+    
+        if diagnostico:
+            return Response({
             "diagnostico" : resultado
-        }, status=200)
+            }, status=200)
+        else:
+            return Response({"error": "No se pudo guardar el diagnóstico"}, status=500)
     except ValueError as e:
-        return Response({"error": "Un valor de los campos de entrada es incorrecto"}, status=400)
+        print(f"Value Error: {e}")
+        return Response({"error": str(e)}, status=400)
     except Exception as e:
-        return Response({"error": str(e)}, status=500)
+        print(f"Error: {e}")
+        return Response({"error": "Ocurrió un error inesperado"}, status=500)
+    
+
+
+"""  Guardar diagnostico en la base de datos """
+def save_diagnostico(evaluacion, diagnostico, paciente : Paciente):
+    try:
+        diagnostico = Diagnostico(
+            edad_meses = calcular_edad_en_meses(paciente.fecha_nacimiento),
+            peso = evaluacion.data['Peso'],
+            talla = evaluacion.data['Talla'],
+            hemoglobina = evaluacion.data['Hemoglobina'],
+            cred = evaluacion.data['Cred'],
+            suplementacion = evaluacion.data['Suplementacion'],
+            dx_anemia = diagnostico,
+            created_at = datetime.datetime.now(),
+            updated_at = datetime.datetime.now(),
+            paciente = paciente
+        )
+        diagnostico.save()
+        return diagnostico
+    except Exception as e:
+        print(f"Error al guardar diagnostico: {e}")
+        return None
+
+

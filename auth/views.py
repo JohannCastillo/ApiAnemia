@@ -4,10 +4,15 @@ from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.response import Response
 from rest_framework import status, exceptions
-
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.hashers import make_password
+from rest_framework.utils import json
 from .serializers import *
-
 from django.contrib.auth.models import User
+from api.models import Apoderado
+
+import requests
+import json
 
 @api_view(['POST'])
 def login(request):
@@ -42,3 +47,49 @@ def register(request):
 @permission_classes([IsAuthenticated])
 def validate_token(request):
     return Response({}, status=status.HTTP_200_OK)
+
+
+# Login with google
+@api_view(['POST'])
+def google_login(request):
+    serializer = GoogleLoginSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    payload = {'access_token': serializer.data['access_token']}
+
+    request = requests.get(
+         'https://www.googleapis.com/oauth2/v2/userinfo', 
+         params = payload
+    )
+    response =  json.loads(request.text)
+
+    if 'error' in response: 
+        raise exceptions.AuthenticationFailed('El token no es válido o se encuentra expirado') 
+    
+    try:
+        user = User.objects.get(email=response['email'])
+    except User.DoesNotExist: 
+        user = User.objects.create_user(
+            username=response['email'],
+            email=response['email'], 
+            password= make_password(BaseUserManager().make_random_password()),
+        )
+        user.save()
+    
+    find_apoderado_record = Apoderado.objects.filter(email=response['email']).first()
+    if find_apoderado_record:
+        # asignar usuario a apoderado
+        find_apoderado_record.usuario = user
+        find_apoderado_record.save()
+    else: 
+        # crear nuevo apoderado
+        new_apoderado = Apoderado(
+            nombre=serializer.data['nombre'],
+            email=response['email'],
+            usuario=user
+        )
+        new_apoderado.save()
+
+    data = UserSerializer(user).data
+
+    return Response(data, status=status.HTTP_200_OK)
