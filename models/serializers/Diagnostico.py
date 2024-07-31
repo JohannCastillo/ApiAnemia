@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from models.models import Persona
+from api.models import Diagnostico
 
-class PersonaSerializer(serializers.Serializer):
+class DiagnosticoSerializer(serializers.ModelSerializer):
+    Nombre = serializers.CharField(max_length=100)
     Sexo = serializers.CharField(max_length=1)
     EdadMeses = serializers.IntegerField()
     Peso = serializers.FloatField()
@@ -11,9 +12,21 @@ class PersonaSerializer(serializers.Serializer):
     Suplementacion = serializers.BooleanField()
     ProvinciaREN = serializers.CharField(max_length=100)
     DistritoREN = serializers.CharField(max_length=100)
-
-    class Meta:
-        fields = '__all__'
+    
+    class Meta :
+        model = Diagnostico
+        fields = (
+            'Nombre',
+            'Sexo',
+            'EdadMeses',
+            'Peso',
+            'Talla',
+            'Hemoglobina',
+            'Cred',
+            'Suplementacion',
+            'ProvinciaREN',
+            'DistritoREN',
+        )
 
     def to_internal_value(self, data):
         data = super().to_internal_value(data)
