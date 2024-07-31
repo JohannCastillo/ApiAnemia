@@ -17,6 +17,9 @@ class Distrito(models.Model):
 
 class Apoderado(models.Model):
     nombre = models.CharField(max_length=100, null=False)
+    email = models.EmailField(null=False, unique=True)
+    telefono = models.CharField(max_length=9, null=True)
+    direccion = models.CharField(max_length=100, null=True)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
 

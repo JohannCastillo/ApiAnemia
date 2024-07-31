@@ -7,18 +7,22 @@ from api.serializers.Paciente import PacienteSerializer, CreatePacienteSerialize
 @api_view(['GET'])
 def index(request):
     pacientes = Paciente.objects.all()
-    return Response({
-        "pacientes": PacienteSerializer(pacientes, many=True).data
-    }, status=200)
+    return Response( PacienteSerializer(pacientes, many=True).data, status=200)
 
 
 @api_view(['GET'])
-def get_pacientes_by_apodeado(request, apoderado_id):
+def get_pacientes_by_apoderado(request, apoderado_id):
     pacientes = Paciente.objects.filter(
         apoderado_paciente__apoderado_id=apoderado_id)
-    return Response({
-        "pacientes": PacienteSerializer(pacientes, many=True).data
-    }, status=200)
+    return Response(
+        PacienteSerializer(pacientes, many=True).data
+        , status=200
+    )
+
+@api_view(['GET'])
+def get_paciente_by_id(request, id):
+    paciente = Paciente.objects.get(id=id)
+    return Response(PacienteSerializer(paciente).data, status=200)
 
 
 @api_view(['POST'])
@@ -40,9 +44,7 @@ def create(request, apoderado_id):
             apoderado = apoderado
         )
         paciente_apoderado.save()
-        return Response({
-            "paciente": PacienteSerializer(newPaciente).data
-        }, status=201)
+        return Response(PacienteSerializer(newPaciente).data, status=201)
     except Exception as e:
         print(f"Error al guardar paciente: {e}")
         return Response({"error": "Ocurrió un error inesperado"}, status=500)
