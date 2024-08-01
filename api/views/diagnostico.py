@@ -47,3 +47,6 @@ def estadisticas(request):
     }
 
     return Response(estadisticas, status=200)
+
+
+""" Devolver estadísticas agrupadas por mes y año de created_at del diagnóstico """
