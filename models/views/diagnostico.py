@@ -65,11 +65,11 @@ def save_diagnostico(evaluacion, diagnostico, paciente : Paciente):
             cred = evaluacion.data['Cred'],
             suplementacion = evaluacion.data['Suplementacion'],
             dx_anemia = diagnostico,
-            created_at = datetime.datetime.now(),
-            updated_at = datetime.datetime.now(),
-            paciente = paciente
+            paciente = paciente,
+            created_at = evaluacion.data.get('fecha_diagnostico', datetime.datetime.now()),
         )
         diagnostico.save()
+
         return diagnostico
     except Exception as e:
         print(f"Error al guardar diagnostico: {e}")

@@ -8,7 +8,7 @@ class DiagnosticoSerializer(serializers.ModelSerializer):
     Hemoglobina = serializers.FloatField()
     Cred = serializers.BooleanField()
     Suplementacion = serializers.BooleanField()
-
+    fecha_diagnostico = serializers.DateField(required=False)
     
     class Meta :
         model = Diagnostico
@@ -19,4 +19,5 @@ class DiagnosticoSerializer(serializers.ModelSerializer):
             'Hemoglobina',
             'Cred',
             'Suplementacion',
+            'fecha_diagnostico',
         )

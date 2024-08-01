@@ -45,6 +45,6 @@ class Diagnostico(models.Model):
     cred = models.BooleanField(default=False)
     suplementacion = models.BooleanField(default=False)
     dx_anemia = models.CharField(max_length=20)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
