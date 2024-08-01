@@ -34,7 +34,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = ["apianemia.onrender.com", 'localhost', '127.0.0.1']
 
@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'ApiAnemia.urls'
@@ -135,15 +136,15 @@ STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# if not PRODUCTION: 
-CORS_ALLOW_ALL_ORIGINS = True
-# else:
-#     CORS_ALLOWED_ORIGINS = [
-#         "http://localhost",
-#         "https://localhost",
-#         "http://127.0.0.1",
-#         "https://127.0.0.1",
-    # ] 
+if not PRODUCTION: 
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost",
+        "https://localhost",
+        "http://127.0.0.1",
+        "https://127.0.0.1",
+    ] 
 
 # Cargar modelos en primera carga
 import skops.io as sio
