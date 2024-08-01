@@ -2,6 +2,9 @@ from rest_framework.decorators import api_view
 from api.models import Diagnostico
 from api.serializers.Diagnostico import DiagnosticoSerializer
 from rest_framework.response import Response
+from django.db.models import Count
+from django.db.models import Q
+import random
 
 @api_view(['GET'])
 def index(request):
@@ -12,6 +15,9 @@ def index(request):
     , status=200)
 
 
+"""
+Detalle diagnósticos por nivel de gravedad
+"""
 @api_view(['GET'])
 def estadisticas(request):
     id_paciente = request.GET.get('idPaciente', None)
@@ -50,3 +56,48 @@ def estadisticas(request):
 
 
 """ Devolver estadísticas agrupadas por mes y año de created_at del diagnóstico """
+@api_view(['GET'])
+def estadisticas_diagnostico_mes(request):
+    año = request.GET.get('ano', None)
+    mes = request.GET.get('mes', None)
+
+    diagnosticos = Diagnostico.objects.all()
+    if año is not None:
+        diagnosticos = diagnosticos.filter(created_at__year=año)
+    if mes is not None:
+        diagnosticos = diagnosticos.filter(created_at__month=mes)
+
+
+    grouped_diagnosticos = diagnosticos.values('created_at').annotate(
+        moderada=Count('dx_anemia', 
+        filter=Q(dx_anemia="Anemia Moderada")), 
+        severa=Count('dx_anemia', 
+        filter=Q(dx_anemia="Anemia Severa")), 
+        leve=Count('dx_anemia', filter=Q(dx_anemia="Anemia Leve")), 
+        normal=Count('dx_anemia', filter=Q(dx_anemia="Normal")))
+   
+    grouped_diagnosticos = list(grouped_diagnosticos)
+    grouped_diagnosticos.sort(key=lambda x: x['created_at'])
+
+    response = []
+    for diagnostico in grouped_diagnosticos:
+        date = diagnostico['created_at'].strftime("%Y-%m")
+        if not any(x['date'] == date for x in response):
+            data_dict = {
+                "date" : date,
+                "moderada" : diagnostico['moderada'],
+                "severa" : diagnostico['severa'],
+                "leve" : diagnostico['leve'],
+                "normal" : diagnostico['normal'],
+                "pronostico" :random.randint(50, 100) # random for testing
+            }
+            response.append(data_dict)
+        else:
+            for i in range(len(response)):
+                if response[i]['date'] == date:
+                    response[i]['moderada'] += diagnostico['moderada']
+                    response[i]['severa'] += diagnostico['severa']
+                    response[i]['leve'] += diagnostico['leve']
+                    response[i]['normal'] += diagnostico['normal']
+                    break
+    return Response(response, status=200)

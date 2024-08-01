@@ -14,6 +14,7 @@ urlpatterns = [
     # Diagnósticos
     path('diagnosticos', view=diagnostico.index),
     path('diagnosticos/estadisticas', view=diagnostico.estadisticas),
+    path('diagnosticos/estadisticas/evolucion-mensual', view=diagnostico.estadisticas_diagnostico_mes),
 
     # Apoderados
     path('apoderados', view=apoderado.index),
