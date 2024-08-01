@@ -12,5 +12,5 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 
-# Load ubigeos data
-python scripts/load_ubigeos.py
+# # Load ubigeos data only once
+# python scripts/load_ubigeos.py
