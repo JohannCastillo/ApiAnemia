@@ -10,10 +10,13 @@ pip install -r requirements.txt
 
 # Apply any outstanding database migrations
 # Flush databse
-python manage.py flush --no-input
+# python manage.py flush --no-input
 # Apply migrations
 python manage.py makemigrations
 python manage.py migrate
 
+# Crear superusuario
+python manage.py createsuperuser --no-input
+
 # Load ubigeos data only once
-python scripts/load_ubigeos.py
+# python scripts/load_ubigeos.py
