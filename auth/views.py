@@ -86,7 +86,8 @@ def google_login(request):
         new_apoderado = Apoderado(
             nombre=serializer.data['nombre'],
             email=response['email'],
-            usuario=user
+            usuario=user,
+            dni = None,
         )
         new_apoderado.save()
 
