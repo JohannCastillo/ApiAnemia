@@ -16,6 +16,7 @@ class Distrito(models.Model):
 
 
 class Apoderado(models.Model):
+    dni = models.CharField(max_length=8, null=False, unique=True)
     nombre = models.CharField(max_length=100, null=False)
     email = models.EmailField(null=False, unique=True)
     telefono = models.CharField(max_length=9, null=True)
@@ -24,6 +25,8 @@ class Apoderado(models.Model):
 
 
 class Paciente(models.Model):
+    codigo_cnv = models.CharField(max_length=20, null=False, unique=True) # Código de certificado de nacido vivo
+    dni = models.CharField(max_length=8, null=True, unique=True) 
     nombre = models.CharField(max_length=100, null=False)
     sexo = models.CharField(max_length=1, choices=(('M', 'Masculino'), ('F', 'Femenino')), null=False)
     fecha_nacimiento = models.DateField(null=False)

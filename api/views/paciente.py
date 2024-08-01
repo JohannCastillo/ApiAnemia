@@ -24,6 +24,22 @@ def get_paciente_by_id(request, id):
     paciente = Paciente.objects.get(id=id)
     return Response(PacienteSerializer(paciente).data, status=200)
 
+@api_view(['GET'])
+def get_paciente_by_dni(request, dni):
+    try:
+        paciente = Paciente.objects.get(dni=dni)
+    except Paciente.DoesNotExist:
+        return Response({"error": "El paciente no existe"}, status=404)
+    return Response(PacienteSerializer(paciente).data, status=200)
+
+@api_view(['GET'])
+def get_paciente_by_cnv(request, cnv):
+    try: 
+        paciente = Paciente.objects.get(codigo_cnv=cnv)
+    except Paciente.DoesNotExist:
+        return Response({"error": "El paciente no existe"}, status=404)
+    return Response(PacienteSerializer(paciente).data, status=200)
+
 
 @api_view(['POST'])
 def create(request, apoderado_id):
@@ -36,6 +52,8 @@ def create(request, apoderado_id):
             sexo = paciente.data['sexo'],
             fecha_nacimiento = paciente.data['fecha_nacimiento'],
             distrito = Distrito.objects.get(id=paciente.data['distrito']),
+            codigo_cnv = paciente.data['codigo_cnv'],
+            dni = paciente.data.get('dni', None),
         )
         newPaciente.save()
         # Crear relación de paciente con apoderado

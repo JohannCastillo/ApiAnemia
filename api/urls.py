@@ -5,8 +5,11 @@ urlpatterns = [
     # Pacientes
     path('pacientes', view=paciente.index),
     path('pacientes/<int:id>', view=paciente.get_paciente_by_id),
+    path('pacientes/dni/<int:dni>', view=paciente.get_paciente_by_dni),
+    path('pacientes/cnv/<int:cnv>', view=paciente.get_paciente_by_cnv),
     path('pacientes/apoderado/<int:apoderado_id>', view=paciente.get_pacientes_by_apoderado),
     path('pacientes/apoderado/<int:apoderado_id>/create', view=paciente.create),
+
 
     # Diagnósticos
     path('diagnosticos', view=diagnostico.index),
@@ -14,6 +17,7 @@ urlpatterns = [
     # Apoderados
     path('apoderados', view=apoderado.index),
     path('apoderados/<int:id>', view=apoderado.get_apoderado_by_id),
+    path('apoderados/dni/<int:dni>', view=apoderado.get_apoderado_by_dni),
     path('apoderados/usuario/<int:user_id>', view=apoderado.get_apoderado_by_user_id),
     path('apoderados/create', view=apoderado.create),
     path('apoderados/<int:id>/update', view=apoderado.update),

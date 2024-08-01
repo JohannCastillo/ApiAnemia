@@ -26,6 +26,14 @@ def get_apoderado_by_id(request, id):
         return Response({"error": "El apoderado no existe"}, status=404)
     return Response(ApoderadoSerializer(apoderado).data, status=200)
 
+@api_view(['GET'])
+def get_apoderado_by_dni(request, dni):
+    try:
+        apoderado = Apoderado.objects.get(dni=dni)
+    except Apoderado.DoesNotExist:
+        return Response({"error": "El apoderado no existe"}, status=404)
+    return Response(ApoderadoSerializer(apoderado).data, status=200)
+
 @api_view(['POST'])
 def create(request):
     apoderado = CreateApoderadoSerializer(data=request.data)
@@ -33,6 +41,7 @@ def create(request):
 
     try: 
         newApoderado = Apoderado(
+            dni = apoderado.data['dni'],
             nombre = apoderado.data['nombre'],
             email = apoderado.data['email'],
             telefono = apoderado.data['telefono'],
