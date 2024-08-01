@@ -13,6 +13,7 @@ urlpatterns = [
 
     # Diagnósticos
     path('diagnosticos', view=diagnostico.index),
+    path('diagnosticos/estadisticas', view=diagnostico.estadisticas),
 
     # Apoderados
     path('apoderados', view=apoderado.index),

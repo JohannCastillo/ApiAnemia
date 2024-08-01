@@ -21,7 +21,10 @@ def get_pacientes_by_apoderado(request, apoderado_id):
 
 @api_view(['GET'])
 def get_paciente_by_id(request, id):
-    paciente = Paciente.objects.get(id=id)
+    try:
+        paciente = Paciente.objects.get(id=id)
+    except Paciente.DoesNotExist:
+        return Response({"error": "El paciente no existe"}, status=404)
     return Response(PacienteSerializer(paciente).data, status=200)
 
 @api_view(['GET'])
