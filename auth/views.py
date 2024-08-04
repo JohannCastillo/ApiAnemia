@@ -94,3 +94,39 @@ def google_login(request):
     data = UserSerializer(user).data
 
     return Response(data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def google_search_user(request):
+    serializer = GoogleValidateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    payload = {'access_token': serializer.data['access_token']}
+
+    request = requests.get(
+         'https://www.googleapis.com/oauth2/v2/userinfo', 
+         params = payload
+    )
+
+    response =  json.loads(request.text)
+
+    if 'error' in response: 
+        raise exceptions.AuthenticationFailed('El token no es válido o se encuentra expirado') 
+    
+    try:
+        user = User.objects.get(email=response['email'])
+        return Response({
+            "CODE": "ALREADY_REGISTERED",
+            "user": UserSerializer(user).data
+        }, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist: 
+        user = User.objects.create_user(
+            username=response['email'],
+            email=response['email'], 
+            password= make_password(BaseUserManager().make_random_password()),
+        )
+        user.save()
+        return Response({
+            "CODE": "NOT_REGISTERED",
+            "user": UserSerializer(user).data
+        }, status=status.HTTP_200_OK)
