@@ -33,3 +33,6 @@ class GoogleLoginSerializer(serializers.Serializer):
 
 class GoogleValidateSerializer(serializers.Serializer):
     access_token = serializers.CharField(required=True)
+
+class GoogleRegisterSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True)

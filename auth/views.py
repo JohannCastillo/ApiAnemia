@@ -114,6 +114,14 @@ def google_search_user(request):
     
     try:
         user = User.objects.get(email=response['email'])
+
+        if user.first_name == "":
+            return Response({
+                "CODE": "NOT_REGISTERED",
+                "user": UserSerializer(user).data
+            }, status=status.HTTP_200_OK)
+        
+
         return Response({
             "CODE": "ALREADY_REGISTERED",
             "user": UserSerializer(user).data
@@ -130,3 +138,31 @@ def google_search_user(request):
             "CODE": "NOT_REGISTERED",
             "user": UserSerializer(user).data
         }, status=status.HTTP_200_OK)
+    
+@api_view(['PUT'])
+def complete_user_register(request):
+    user = request.userdb
+    print(user.email)
+
+    serializer = GoogleRegisterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    user.first_name = serializer.data['name']
+    user.save()
+
+    find_apoderado_record = Apoderado.objects.filter(email=user.email).first()
+    if find_apoderado_record:
+        # asignar usuario a apoderado
+        find_apoderado_record.usuario = user
+        find_apoderado_record.save()
+    else: 
+        # crear nuevo apoderado
+        new_apoderado = Apoderado(
+            nombre=serializer.data['name'],
+            email=user.email,
+            usuario=user,
+            dni = None,
+        )
+        new_apoderado.save()
+
+    return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
