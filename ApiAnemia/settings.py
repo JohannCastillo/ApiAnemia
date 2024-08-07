@@ -146,7 +146,7 @@ else:
 # Cargar modelos en primera carga
 import skops.io as sio
 import os 
-from io import BytesIO, StringIO
+from io import BytesIO
 import requests
 from prophet.serialize import model_from_json
 
