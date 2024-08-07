@@ -146,11 +146,13 @@ else:
 # Cargar modelos en primera carga
 import skops.io as sio
 import os 
-from io import BytesIO
+from io import BytesIO, StringIO
 import requests
+from prophet.serialize import model_from_json
 
 MODEL_DIAGNOSTICO = None
 MODEL_DIETA = None
+MODEL_PRONOSTICO = None
 
 # Evitar la carga del modelo en migraciones
 if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
@@ -162,10 +164,18 @@ if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
             model_data = response.content
             MODEL_DIAGNOSTICO = sio.load(BytesIO(model_data))
 
+            print("cargando el modelo obj2 en producción ...")
+            model_obj2_path = os.path.join(BASE_DIR, 'models', 'static', 'obj2.json')  
+            with open(model_obj2_path, 'r') as fin:
+                m2 = model_from_json(fin.read())
+            MODEL_PRONOSTICO = m2
+
+            print("cargando el modelo obj3 en producción desde el bucket ...")
             response = requests.get(BUCKET_URL_3)
             response.raise_for_status()
             model_data = response.content
             MODEL_DIETA = sio.load(BytesIO(model_data))
+            
         except requests.exceptions.RequestException as e:
             print(f"Error al descargar el modelo obj1: {e}")
     else: 
@@ -174,6 +184,11 @@ if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
         model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')  
         MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
 
+        print("cargando el modelo obj2 en producción ...")
+        model_obj2_path = os.path.join(BASE_DIR, 'models', 'static', 'obj2.json')  
+        with open(model_obj2_path, 'r') as fin:
+            m2 = model_from_json(fin.read())
+        MODEL_PRONOSTICO = m2
         # response = requests.get(BUCKET_URL_3)
         # response.raise_for_status()
         # model_data = response.content
