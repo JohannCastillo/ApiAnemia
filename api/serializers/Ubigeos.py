@@ -4,9 +4,15 @@ from api.serializers.Paciente import PacienteSerializer
 
 
 class DistritoSerializer(serializers.ModelSerializer):
+    provincia = serializers.SerializerMethodField()
+
+    def get_provincia(self, obj):
+        return obj.provincia.provincia
+
     class Meta:
         model = Distrito
         fields = "__all__"
+
     
 class ProvinciaSerializer(serializers.ModelSerializer):
     class Meta:
