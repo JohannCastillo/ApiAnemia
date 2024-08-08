@@ -1,11 +1,15 @@
 from rest_framework.decorators import api_view
-from api.models import Diagnostico
+from api.models import Diagnostico, Paciente, Nivel_Anemia
 from api.serializers.Diagnostico import DiagnosticoSerializer
+from api.serializers.Paciente import PacienteSerializer
 from rest_framework.response import Response
 from django.db.models import Count
 from django.db.models import Q
 from api.pagination.pageable import CustomPagination, paginate_results
+from django.shortcuts import get_object_or_404
 import random
+from ApiAnemia import settings
+
 
 @api_view(['GET'])
 def index(request):
@@ -16,40 +20,61 @@ def index(request):
         paginate_results(CustomPagination(), request, data)
     , status=200)
 
+@api_view(['GET'])
+def niveles_anemia(request):
+    niveles = Nivel_Anemia.objects.all()
+    niveles_anemia = []
+    for nivel in niveles:
+        dict = {
+            "id": nivel.id,
+            "nivel" : nivel.nivel
+        }
+        niveles_anemia.append(dict)
+
+    return Response(
+        niveles_anemia
+    , status=200)
 
 """
-Detalle diagnósticos por nivel de gravedad
+Detalle diagnósticos por nivel de gravedad y paciente
 """
 @api_view(['GET'])
-def estadisticas(request):
-    id_paciente = request.GET.get('idPaciente', None)
+def estadisticas_por_paciente_id(request, id_paciente):
+    paciente = get_object_or_404(Paciente, id=id_paciente)
     # Lista de todos los diagnósticos
+    nivel_anemia_id = request.GET.get('nivelAnemia', None)
+
     diagnosticos = Diagnostico.objects.all()
+    diagnosticos = diagnosticos.filter(paciente=paciente)
 
-    if id_paciente is not None:
-        diagnosticos = diagnosticos.filter(paciente__id=id_paciente)
+    if nivel_anemia_id is not None:
+        diagnosticos = diagnosticos.filter(dx_anemia=nivel_anemia_id)
+    
+    anemia_severa = diagnosticos.filter(dx_anemia__nivel="Anemia Severa")
+    anemia_moderada = diagnosticos.filter(dx_anemia__nivel="Anemia Moderada")
+    anemia_leve = diagnosticos.filter(dx_anemia__nivel="Anemia Leve")
+    normal = diagnosticos.filter(dx_anemia__nivel="Normal")
 
-    anemia_severa = diagnosticos.filter(dx_anemia="Anemia Severa")
-    anemia_moderada = diagnosticos.filter(dx_anemia="Anemia Moderada")
-    anemia_leve = diagnosticos.filter(dx_anemia="Anemia Leve")
-    normal = diagnosticos.filter(dx_anemia="Normal")
+
+    
  
     estadisticas = {
-        'anemia severa': {
+        'paciente': PacienteSerializer(paciente).data,
+        'anemia_severa': {
             'total': anemia_severa.count(),
-            'diagnosticos' : DiagnosticoSerializer(anemia_severa, many=True).data,
+            'diagnosticos' : DiagnosticoSerializer(anemia_severa, many=True, exclude_paciente=True).data,
         },
-        'anemia moderada': {
+        'anemia_moderada': {
             'total': anemia_moderada.count(),
-            'diagnosticos' : DiagnosticoSerializer(anemia_moderada, many=True).data,
+            'diagnosticos' : DiagnosticoSerializer(anemia_moderada, many=True, exclude_paciente=True).data,
         },
-        'anemia leve': {
+        'anemia_leve': {
             'total': anemia_leve.count(),
-            'diagnosticos' : DiagnosticoSerializer(anemia_leve, many=True).data,
+            'diagnosticos' : DiagnosticoSerializer(anemia_leve, many=True, exclude_paciente=True).data,
         },
         'normal': {
             'total': normal.count(),
-            'diagnosticos' : DiagnosticoSerializer(normal, many=True).data,
+            'diagnosticos' : DiagnosticoSerializer(normal, many=True, exclude_paciente=True).data,
         },
         "total": len(diagnosticos)
     }
@@ -58,6 +83,9 @@ def estadisticas(request):
 
 
 """ Devolver estadísticas agrupadas por mes y año de created_at del diagnóstico """
+from models.utils.pronostico_utils import predecir_segun_fechas
+prophet = settings.MODEL_PRONOSTICO
+
 @api_view(['GET'])
 def estadisticas_diagnostico_mes(request):
     año = request.GET.get('ano', None)
@@ -71,16 +99,22 @@ def estadisticas_diagnostico_mes(request):
 
 
     grouped_diagnosticos = diagnosticos.values('created_at').annotate(
-        moderada=Count('dx_anemia', 
-        filter=Q(dx_anemia="Anemia Moderada")), 
-        severa=Count('dx_anemia', 
-        filter=Q(dx_anemia="Anemia Severa")), 
-        leve=Count('dx_anemia', filter=Q(dx_anemia="Anemia Leve")), 
-        normal=Count('dx_anemia', filter=Q(dx_anemia="Normal")))
+        moderada=Count('dx_anemia', filter=Q(dx_anemia__nivel="Anemia Moderada")), 
+        severa=Count('dx_anemia', filter=Q(dx_anemia__nivel="Anemia Severa")), 
+        leve=Count('dx_anemia', filter=Q(dx_anemia__nivel="Anemia Leve")), 
+        normal=Count('dx_anemia', filter=Q(dx_anemia__nivel="Normal"))
+    )
    
     grouped_diagnosticos = list(grouped_diagnosticos)
     grouped_diagnosticos.sort(key=lambda x: x['created_at'])
 
+    # pronósticos
+    pronosticar = predecir_segun_fechas(
+        prophet, 
+        grouped_diagnosticos[0]['created_at'].strftime("%Y"), # año inicial
+        grouped_diagnosticos[-1]['created_at'].strftime("%Y") # año final
+    )
+ 
     response = []
     for diagnostico in grouped_diagnosticos:
         date = diagnostico['created_at'].strftime("%Y-%m")
@@ -91,7 +125,7 @@ def estadisticas_diagnostico_mes(request):
                 "severa" : diagnostico['severa'],
                 "leve" : diagnostico['leve'],
                 "normal" : diagnostico['normal'],
-                "pronostico" :random.randint(50, 100) # random for testing
+                "pronostico" : pronosticar[pronosticar['ds'].apply(lambda x: x.strftime("%Y-%m") == date)]["yhat"].values[0]
             }
             response.append(data_dict)
         else:

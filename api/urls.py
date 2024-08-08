@@ -11,10 +11,12 @@ urlpatterns = [
     path('pacientes/apoderado/<int:apoderado_id>', view=paciente.get_pacientes_by_apoderado),
     path('pacientes/apoderado/<int:apoderado_id>/create', view=paciente.create),
 
+    # Niveles de anemia
+    path('niveles-anemia', view=diagnostico.niveles_anemia),
 
     # Diagnósticos
     path('diagnosticos', view=diagnostico.index),
-    path('diagnosticos/estadisticas', view=diagnostico.estadisticas),
+    path('diagnosticos/estadisticas/paciente/<int:id_paciente>', view=diagnostico.estadisticas_por_paciente_id),
     path('diagnosticos/estadisticas/evolucion-mensual', view=diagnostico.estadisticas_diagnostico_mes),
 
     # Apoderados

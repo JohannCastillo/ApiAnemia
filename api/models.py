@@ -37,6 +37,9 @@ class Apoderado_Paciente(models.Model):
     apoderado = models.ForeignKey(Apoderado, on_delete=models.CASCADE, null=False)
     
 
+class Nivel_Anemia(models.Model):
+    nivel = models.CharField(max_length=20)
+
 class Diagnostico(models.Model):
     edad_meses = models.IntegerField(null=False)
     peso = models.FloatField(null=False)
@@ -44,7 +47,30 @@ class Diagnostico(models.Model):
     hemoglobina = models.FloatField(null=False)
     cred = models.BooleanField(default=False)
     suplementacion = models.BooleanField(default=False)
-    dx_anemia = models.CharField(max_length=20)
+    # dx_anemia = models.CharField(max_length=20)
+    dx_anemia = models.ForeignKey(Nivel_Anemia, on_delete=models.CASCADE)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+
+class Dieta(models.Model):
+    frec_verduras = models.IntegerField(null=False)
+    frec_carnes_rojas = models.IntegerField(null=False)
+    frec_aves = models.IntegerField(null=False)
+    frec_huevos = models.IntegerField(null=False)
+    frec_pescado = models.IntegerField(null=False)
+    frec_leche = models.IntegerField(null=False)
+    frec_menestra = models.IntegerField(null=False)
+    frec_bocados_dulc = models.IntegerField(null=False)
+    frec_bebidas_az = models.IntegerField(null=False)
+    frec_embutidos_consv = models.IntegerField(null=False)
+    frec_fritura = models.IntegerField(null=False)
+    frec_azucar = models.IntegerField(null=False)
+    frec_desayuno = models.IntegerField(null=False)
+    frec_almuerzo = models.IntegerField(null=False)
+    frec_cena = models.IntegerField(null=False)
+    frec_fruta = models.IntegerField(null=False)
+    dx_dieta = models.IntegerField(null=False)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
