@@ -27,7 +27,7 @@ def departamentos(request):
 
 @api_view(['GET'])
 def distritos(request):
-    distritos = Distrito.objects.all().order_by('distrito')
+    distritos = Distrito.objects.all().select_related('provincia').order_by('distrito')
     return Response(DistritoSerializer(distritos, many=True).data, status=200)
 
 @api_view(['GET'])
