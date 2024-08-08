@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from api.models import Apoderado
 from api.serializers.Apoderado import ApoderadoSerializer, CreateApoderadoSerializer
 
-
 @api_view(['GET'])
 def index(request):
     apoderados = Apoderado.objects.all()
