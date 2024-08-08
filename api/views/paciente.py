@@ -69,3 +69,31 @@ def create(request, apoderado_id):
     except Exception as e:
         print(f"Error al guardar paciente: {e}")
         return Response({"error": "Ocurrió un error inesperado"}, status=500)
+
+@api_view(['POST'])
+def create_by_user(request):
+    paciente = CreatePacienteSerializer(data=request.data)
+    paciente.is_valid(raise_exception=True)
+    user = request.userdb
+    
+    try:
+        apoderado = Apoderado.objects.filter(email=user.email).first()
+        newPaciente = Paciente(
+            nombre = paciente.data['nombre'],
+            sexo = paciente.data['sexo'],
+            fecha_nacimiento = paciente.data['fecha_nacimiento'],
+            distrito = Distrito.objects.get(id=paciente.data['distrito']),
+            codigo_cnv = paciente.data['codigo_cnv'],
+            dni = paciente.data.get('dni', None),
+        )
+        newPaciente.save()
+        # Crear relación de paciente con apoderado
+        paciente_apoderado = Apoderado_Paciente(
+            paciente = newPaciente,
+            apoderado = apoderado
+        )
+        paciente_apoderado.save()
+        return Response(PacienteSerializer(newPaciente).data, status=201)
+    except Exception as e:
+        print(f"Error al guardar paciente: {e}")
+        return Response({"error": "Ocurrió un error inesperado"}, status=500)

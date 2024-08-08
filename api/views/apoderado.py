@@ -68,3 +68,7 @@ def update(request, id):
     except Exception as e:
         print(f"Error al actualizar apoderado: {e}")
         return Response({"error": "Ocurrió un error inesperado"}, status=500)
+    
+@api_view(['GET'])
+def get_pacientes_by_apoderado_user(request):
+    pass

@@ -3,7 +3,8 @@ from django.http import HttpResponse
 import base64
 
 protected_endpoints = [
-    "/auth/register/google"
+    "/auth/register/google",
+    "/pacientes/apoderado/user/create"
 ]
 
 class AuthMiddleware:
