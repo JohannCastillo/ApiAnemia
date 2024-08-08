@@ -95,6 +95,11 @@ DATABASES = {
    'default':  dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
+# Pagination 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -190,12 +195,12 @@ if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
         model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')  
         MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
 
-        print("cargando el modelo obj2 en producción ...")
+        print("cargando el modelo obj2 en local ...")
         model_obj2_path = os.path.join(BASE_DIR, 'models', 'static', 'obj2.json')  
         with open(model_obj2_path, 'r') as fin:
             m2 = model_from_json(fin.read())
         MODEL_PRONOSTICO = m2
-        # response = requests.get(BUCKET_URL_3)
-        # response.raise_for_status()
-        # model_data = response.content
-        # MODEL_DIETA = sio.load(BytesIO(model_data))
+
+        print("cargando el modelo obj3 en local ...")
+        model_obj3_path = os.path.join(BASE_DIR, 'models', 'static', 'obj3.skops')
+        MODEL_DIETA = sio.load(file=model_obj3_path)

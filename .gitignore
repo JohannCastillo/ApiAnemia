@@ -22,3 +22,6 @@ pip-delete-this-directory.txt
 
 # Modelos IA
 *.skops
+
+# Datos
+*.sql
