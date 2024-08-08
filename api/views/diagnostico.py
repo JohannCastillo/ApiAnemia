@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models.functions import ExtractYear, ExtractMonth
 from ApiAnemia import settings
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 @api_view(['GET'])
 def index(request):
@@ -85,19 +86,22 @@ prophet = settings.MODEL_PRONOSTICO
 
 @api_view(['GET'])
 def estadisticas_diagnostico_mes(request):
-    año = request.GET.get('ano', None)
-    mes = request.GET.get('mes', None)
-
+    # Params para filtrar por mes y año ej : "2020-01 - 2024-12"
+    año_actual = datetime.now().year
+    
+    rango_from = request.GET.get('rango_from', f"{año_actual-2}-01")
+    rango_to = request.GET.get('rango_to', f"{año_actual}-12")
+    # formateando rangos
+    rango_from = datetime.strptime(rango_from, "%Y-%m")
+    rango_to = datetime.strptime(rango_to, "%Y-%m")
+    
     diagnosticos = Diagnostico.objects.all()
+    
     # set de años y meses disponibles
     years = diagnosticos.annotate(year=ExtractYear('created_at')).values_list('year', flat=True).distinct()
     months = diagnosticos.annotate(month=ExtractMonth('created_at')).values_list('month', flat=True).distinct()
     
-    if año is not None:
-        diagnosticos = diagnosticos.filter(created_at__year=año)
-    if mes is not None:
-        diagnosticos = diagnosticos.filter(created_at__month=mes)
-
+    diagnosticos = diagnosticos.filter(created_at__range=[rango_from, rango_to])
 
     grouped_diagnosticos = diagnosticos.values('created_at').annotate(
         moderada=Count('dx_anemia', filter=Q(dx_anemia__nivel="Anemia Moderada")), 
@@ -112,42 +116,34 @@ def estadisticas_diagnostico_mes(request):
     # pronósticos
     pronosticar = predecir_segun_fechas(
         prophet, 
-        grouped_diagnosticos[0]['created_at'].strftime("%Y"), # año inicial
-        # grouped_diagnosticos[-1]['created_at'].strftime("%Y") # año final
-        datetime.now().strftime("%Y") # año final
+        rango_from.strftime("%Y"), # año inicial
+        rango_to.strftime("%Y") # año final
     )
+    print(pronosticar[pronosticar['ds'] < '2019-05'])
  
     response = []
+    initial_date = rango_from
+    while initial_date <= rango_to:
+        response.append({
+            'date' : initial_date.strftime("%Y-%m"),
+            'moderada' : 0,
+            'severa' : 0,
+            'leve' : 0,
+            'normal' : 0,
+            'pronostico' : get_pronostico_value_by_date(pronosticar, initial_date.strftime("%Y-%m"))
+        })
+        initial_date += relativedelta(months=1)
+    
     for diagnostico in grouped_diagnosticos:
         date = diagnostico['created_at'].strftime("%Y-%m")
-        if not any(x['date'] == date for x in response):
-            data_dict = {
-                "date" : date,
-                "moderada" : diagnostico['moderada'],
-                "severa" : diagnostico['severa'],
-                "leve" : diagnostico['leve'],
-                "normal" : diagnostico['normal'],
-                "pronostico" : get_pronostico_value_by_date(pronosticar, date) 
-            }
-            response.append(data_dict)
-        else:
-            for i in range(len(response)):
-                if response[i]['date'] == date:
-                    response[i]['moderada'] += diagnostico['moderada']
-                    response[i]['severa'] += diagnostico['severa']
-                    response[i]['leve'] += diagnostico['leve']
-                    response[i]['normal'] += diagnostico['normal']
-                    break
-        
-    # añadir en response el año y el mes actuales
-    response.append({
-        "date" : datetime.now().strftime("%Y-%m"),
-        "moderada" : 0,
-        "severa" : 0,
-        "leve" : 0,
-        "normal" : 0,
-        "pronostico" : get_pronostico_value_by_date(pronosticar, datetime.now().strftime("%Y-%m"))
-    })
+        for item in response:
+            if item['date'] == date:
+                item['moderada'] += diagnostico['moderada']
+                item['severa'] += diagnostico['severa']
+                item['leve'] += diagnostico['leve']
+                item['normal'] += diagnostico['normal']
+                break
+  
 
     return Response({
         "años" : sorted(list(years)),
