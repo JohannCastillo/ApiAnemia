@@ -25,9 +25,17 @@ class CustomPagination(PageNumberPagination):
             'data': data,
         }
     
-def paginate_results(paginator_class, request, data):
+def paginate_results(paginator_class, request, data, serializer_class=None, **serializer_kwargs):
     paginator = paginator_class
     page = paginator.paginate_queryset(request=request, queryset=data)
+    if serializer_class is not None:
+        if page is not None:
+            # Serializar los datos luego de la paginación
+            # para evitar problemas de rendimiento en la serialización de grandes cantidades de datos
+            serializer = serializer_class(page, many=True, **serializer_kwargs)
+            return paginator.get_paginated_response(serializer.data)
+        return serializer_class(data, many=True, **serializer_kwargs).data
+    # Si no se pasa una clase de serializador
     if page is not None:
         return paginator.get_paginated_response(page)
     return data

@@ -14,10 +14,9 @@ from ApiAnemia import settings
 @api_view(['GET'])
 def index(request):
     # Lista de todos los diagnósticos
-    diagnosticos = Diagnostico.objects.all()
-    data = DiagnosticoSerializer(diagnosticos, many=True).data
+    diagnosticos = Diagnostico.objects.all().select_related('paciente', 'dx_anemia').order_by('-created_at')
     return Response(
-        paginate_results(CustomPagination(), request, data)
+        paginate_results(CustomPagination(), request, diagnosticos, DiagnosticoSerializer)
     , status=200)
 
 @api_view(['GET'])
@@ -54,27 +53,24 @@ def estadisticas_por_paciente_id(request, id_paciente):
     anemia_moderada = diagnosticos.filter(dx_anemia__nivel="Anemia Moderada")
     anemia_leve = diagnosticos.filter(dx_anemia__nivel="Anemia Leve")
     normal = diagnosticos.filter(dx_anemia__nivel="Normal")
-
-
     
- 
     estadisticas = {
         'paciente': PacienteSerializer(paciente).data,
         'anemia_severa': {
             'total': anemia_severa.count(),
-            'diagnosticos' : DiagnosticoSerializer(anemia_severa, many=True, exclude_paciente=True).data,
+            'diagnosticos' : paginate_results(CustomPagination(), request, anemia_severa, DiagnosticoSerializer, exclude_paciente=True)
         },
         'anemia_moderada': {
             'total': anemia_moderada.count(),
-            'diagnosticos' : DiagnosticoSerializer(anemia_moderada, many=True, exclude_paciente=True).data,
+            'diagnosticos' : paginate_results(CustomPagination(), request, anemia_moderada, DiagnosticoSerializer, exclude_paciente=True)
         },
         'anemia_leve': {
             'total': anemia_leve.count(),
-            'diagnosticos' : DiagnosticoSerializer(anemia_leve, many=True, exclude_paciente=True).data,
+            'diagnosticos' : paginate_results(CustomPagination(), request, anemia_leve, DiagnosticoSerializer, exclude_paciente=True)
         },
         'normal': {
             'total': normal.count(),
-            'diagnosticos' : DiagnosticoSerializer(normal, many=True, exclude_paciente=True).data,
+            'diagnosticos' : paginate_results(CustomPagination(), request, normal, DiagnosticoSerializer, exclude_paciente=True)
         },
         "total": len(diagnosticos)
     }
