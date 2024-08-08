@@ -8,6 +8,8 @@ from django.db.models import Q
 from api.pagination.pageable import CustomPagination, paginate_results
 from django.shortcuts import get_object_or_404
 import random
+from ApiAnemia import settings
+
 
 @api_view(['GET'])
 def index(request):
@@ -81,6 +83,9 @@ def estadisticas_por_paciente_id(request, id_paciente):
 
 
 """ Devolver estadísticas agrupadas por mes y año de created_at del diagnóstico """
+from models.utils.pronostico_utils import predecir_segun_fechas
+prophet = settings.MODEL_PRONOSTICO
+
 @api_view(['GET'])
 def estadisticas_diagnostico_mes(request):
     año = request.GET.get('ano', None)
@@ -103,6 +108,13 @@ def estadisticas_diagnostico_mes(request):
     grouped_diagnosticos = list(grouped_diagnosticos)
     grouped_diagnosticos.sort(key=lambda x: x['created_at'])
 
+    # pronósticos
+    pronosticar = predecir_segun_fechas(
+        prophet, 
+        grouped_diagnosticos[0]['created_at'].strftime("%Y"), # año inicial
+        grouped_diagnosticos[-1]['created_at'].strftime("%Y") # año final
+    )
+ 
     response = []
     for diagnostico in grouped_diagnosticos:
         date = diagnostico['created_at'].strftime("%Y-%m")
@@ -113,7 +125,7 @@ def estadisticas_diagnostico_mes(request):
                 "severa" : diagnostico['severa'],
                 "leve" : diagnostico['leve'],
                 "normal" : diagnostico['normal'],
-                "pronostico" :random.randint(50, 100) # random for testing
+                "pronostico" : pronosticar[pronosticar['ds'].apply(lambda x: x.strftime("%Y-%m") == date)]["yhat"].values[0]
             }
             response.append(data_dict)
         else:
