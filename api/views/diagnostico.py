@@ -4,14 +4,16 @@ from api.serializers.Diagnostico import DiagnosticoSerializer
 from rest_framework.response import Response
 from django.db.models import Count
 from django.db.models import Q
+from api.pagination.pageable import CustomPagination, paginate_results
 import random
 
 @api_view(['GET'])
 def index(request):
     # Lista de todos los diagnósticos
     diagnosticos = Diagnostico.objects.all()
+    data = DiagnosticoSerializer(diagnosticos, many=True).data
     return Response(
-        DiagnosticoSerializer(diagnosticos, many=True).data
+        paginate_results(CustomPagination(), request, data)
     , status=200)
 
 

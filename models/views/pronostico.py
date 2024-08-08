@@ -2,7 +2,7 @@ from http.client import HTTPResponse
 from ApiAnemia import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from models.utils.pronostico_utils import predecir_segun_fechas, generar_imagen
+from models.utils.pronostico_utils import predecir_segun_fechas
 # Create your views here.
 
 modelo = settings.MODEL_PRONOSTICO
@@ -10,10 +10,12 @@ modelo = settings.MODEL_PRONOSTICO
 @api_view(['POST'])
 def index(request):
     entradas = [
-        request.data["anho_inicio"],
-        request.data["anho_fin"],
+        request.data.get('anho_inicio', None),
+        request.data.get('anho_fin', None),
     ]
 
+    if entradas[0] is None or entradas[1] is None:
+        return Response({"error": "No se han especificado los datos requeridos"}, status=400)
     print(modelo)
     print(entradas)
 
