@@ -2,7 +2,7 @@ from http.client import HTTPResponse
 from ApiAnemia import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from models.utils.pronostico_utils import predecir_segun_fechas, generar_imagen
+from models.utils.pronostico_utils import predecir_segun_fechas
 # Create your views here.
 
 modelo = settings.MODEL_PRONOSTICO
