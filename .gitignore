@@ -19,7 +19,6 @@ pip-delete-this-directory.txt
 # migrations
 **/migrations/*
 !**/migrations/__init__.py
-
 # Modelos IA
 *.skops
 

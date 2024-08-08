@@ -37,6 +37,9 @@ class Apoderado_Paciente(models.Model):
     apoderado = models.ForeignKey(Apoderado, on_delete=models.CASCADE, null=False)
     
 
+class Nivel_Anemia(models.Model):
+    nivel = models.CharField(max_length=20)
+
 class Diagnostico(models.Model):
     edad_meses = models.IntegerField(null=False)
     peso = models.FloatField(null=False)
@@ -44,7 +47,8 @@ class Diagnostico(models.Model):
     hemoglobina = models.FloatField(null=False)
     cred = models.BooleanField(default=False)
     suplementacion = models.BooleanField(default=False)
-    dx_anemia = models.CharField(max_length=20)
+    # dx_anemia = models.CharField(max_length=20)
+    dx_anemia = models.ForeignKey(Nivel_Anemia, on_delete=models.CASCADE)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.conf import settings
 from models.utils.diagnostico_utils import predict, calcular_edad_en_meses
 from models.serializers.Diagnostico import DiagnosticoSerializer
-from api.models import Diagnostico, Paciente
+from api.models import Diagnostico, Paciente, Nivel_Anemia
 import datetime
 
 
@@ -57,6 +57,7 @@ def index(request):
 """  Guardar diagnostico en la base de datos """
 def save_diagnostico(evaluacion, diagnostico, paciente : Paciente):
     try:
+        nivel_anemia = Nivel_Anemia.objects.get(nivel=diagnostico)
         diagnostico = Diagnostico(
             edad_meses = calcular_edad_en_meses(paciente.fecha_nacimiento),
             peso = evaluacion.data['Peso'],
@@ -64,7 +65,7 @@ def save_diagnostico(evaluacion, diagnostico, paciente : Paciente):
             hemoglobina = evaluacion.data['Hemoglobina'],
             cred = evaluacion.data['Cred'],
             suplementacion = evaluacion.data['Suplementacion'],
-            dx_anemia = diagnostico,
+            dx_anemia = nivel_anemia,
             paciente = paciente,
             created_at = evaluacion.data.get('fecha_diagnostico', datetime.datetime.now()),
         )
