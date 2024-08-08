@@ -4,7 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
 from models.utils.dieta_utils import predict
-
+from models.serializers.Dieta import DietaSerializer
+from django.shortcuts import get_object_or_404
 modelo = settings.MODEL_DIETA
 
 # Create your views here.
@@ -12,34 +13,34 @@ modelo = settings.MODEL_DIETA
 
 @api_view(['POST'])
 def index(request):
-    paciente = request.data["Paciente"]
-    paciente =  Paciente.objects.filter(id=int(paciente)).first()
-
+    serializer = DietaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    paciente = get_object_or_404(Paciente, id=serializer.data['paciente_id'])
+    request_body = serializer.data
     entradas = {
-        
-        "FrecVerduras": request.data["FrecVerduras"],
-        "FrecCarnR" : request.data["FrecCarnR"],
-        "FrecAves" : request.data["FrecAves"],
-        "FrecHuev" : request.data["FrecHuev"],
-        "FrecPesc" : request.data["FrecPesc"],
-        "FrecLeche" : request.data["FrecLeche"],
-        "FrecMenestr": request.data["FrecMenestr"],
-        "FrecBocDulcSal" : 3,
-        "FrecBebAzuc" : request.data["FrecBebAzuc"],
-        "FrecEmbConsv" : request.data["FrecEmbConsv"],
-        "FrecFritura" : request.data["FrecFritura"],
-        "FrecAzucar" : request.data["FrecAzucar"],
-        "FrecDesayuno" : request.data["FrecDesayuno"],
-        "FrecAlmuerzo" : request.data["FrecAlmuerzo"],
-        "FrecCena" : request.data["FrecCena"],
-        "FrecFruta": request.data["FrecFruta"]
+        "FrecVerduras": request_body["frec_verduras"],
+        "FrecCarnR" : request_body["frec_carnes_rojas"],
+        "FrecAves" : request_body["frec_aves"],
+        "FrecHuev" : request_body["frec_huevos"],
+        "FrecPesc" : request_body["frec_pescado"],
+        "FrecLeche" : request_body["frec_leche"],
+        "FrecMenestr": request_body["frec_menestra"],
+        "FrecBocDulcSal" : request_body["frec_bocados_dulces"],
+        "FrecBebAzuc" : request_body["frec_bebidas_azucaradas"],
+        "FrecEmbConsv" : request_body["frec_embutidos"],
+        "FrecFritura" : request_body["frec_fritura"],
+        "FrecAzucar" : request_body["frec_azucar"],
+        "FrecDesayuno" : request_body["frec_desayuno"],
+        "FrecAlmuerzo" : request_body["frec_almuerzo"],
+        "FrecCena" : request_body["frec_cena"],
+        "FrecFruta": request_body["frec_fruta"]
     }
 
     print(entradas.values())
 
     # print(persona.data)
     try: 
-        resultado = predict(modelo, entradas.values())
+        resultado = predict(modelo, list(entradas.values()))
         
         dieta = save_dieta(entradas, resultado, paciente)
         

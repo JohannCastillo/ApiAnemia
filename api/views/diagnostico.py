@@ -7,9 +7,9 @@ from django.db.models import Count
 from django.db.models import Q
 from api.pagination.pageable import CustomPagination, paginate_results
 from django.shortcuts import get_object_or_404
-import random
+from django.db.models.functions import ExtractYear, ExtractMonth
 from ApiAnemia import settings
-
+from datetime import datetime
 
 @api_view(['GET'])
 def index(request):
@@ -80,6 +80,7 @@ def estadisticas_por_paciente_id(request, id_paciente):
 
 """ Devolver estadísticas agrupadas por mes y año de created_at del diagnóstico """
 from models.utils.pronostico_utils import predecir_segun_fechas
+from api.utils.pronostico import get_pronostico_value_by_date
 prophet = settings.MODEL_PRONOSTICO
 
 @api_view(['GET'])
@@ -88,6 +89,10 @@ def estadisticas_diagnostico_mes(request):
     mes = request.GET.get('mes', None)
 
     diagnosticos = Diagnostico.objects.all()
+    # set de años y meses disponibles
+    years = diagnosticos.annotate(year=ExtractYear('created_at')).values_list('year', flat=True).distinct()
+    months = diagnosticos.annotate(month=ExtractMonth('created_at')).values_list('month', flat=True).distinct()
+    
     if año is not None:
         diagnosticos = diagnosticos.filter(created_at__year=año)
     if mes is not None:
@@ -108,7 +113,8 @@ def estadisticas_diagnostico_mes(request):
     pronosticar = predecir_segun_fechas(
         prophet, 
         grouped_diagnosticos[0]['created_at'].strftime("%Y"), # año inicial
-        grouped_diagnosticos[-1]['created_at'].strftime("%Y") # año final
+        # grouped_diagnosticos[-1]['created_at'].strftime("%Y") # año final
+        datetime.now().strftime("%Y") # año final
     )
  
     response = []
@@ -121,7 +127,7 @@ def estadisticas_diagnostico_mes(request):
                 "severa" : diagnostico['severa'],
                 "leve" : diagnostico['leve'],
                 "normal" : diagnostico['normal'],
-                "pronostico" : pronosticar[pronosticar['ds'].apply(lambda x: x.strftime("%Y-%m") == date)]["yhat"].values[0]
+                "pronostico" : get_pronostico_value_by_date(pronosticar, date) 
             }
             response.append(data_dict)
         else:
@@ -132,4 +138,19 @@ def estadisticas_diagnostico_mes(request):
                     response[i]['leve'] += diagnostico['leve']
                     response[i]['normal'] += diagnostico['normal']
                     break
-    return Response(response, status=200)
+        
+    # añadir en response el año y el mes actuales
+    response.append({
+        "date" : datetime.now().strftime("%Y-%m"),
+        "moderada" : 0,
+        "severa" : 0,
+        "leve" : 0,
+        "normal" : 0,
+        "pronostico" : get_pronostico_value_by_date(pronosticar, datetime.now().strftime("%Y-%m"))
+    })
+
+    return Response({
+        "años" : sorted(list(years)),
+        "meses" : sorted(list(months)),
+        "reporte": response,
+    }, status=200)
