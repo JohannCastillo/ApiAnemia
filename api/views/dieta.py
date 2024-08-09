@@ -17,6 +17,26 @@ def index(request):
         paginate_results(CustomPagination(), request, data)
     , status=200)
 
+@api_view(['GET'])
+def dietas_por_paciente(request):
+    id_paciente = request.GET.get('idPaciente', None)
+    
+    # Filtra las dietas por el ID del paciente si se proporciona
+    if id_paciente is not None:
+        dietas = Dieta.objects.filter(paciente__id=id_paciente)
+    else:
+        dietas = Dieta.objects.all()  # De lo contrario, devuelve todas las dietas
+
+    
+    # Serializa las dietas sin clasificarlas por dx_dieta
+    dietas_serializadas = DietaSerializer(dietas, many=True).data
+    
+    estadisticas = {
+        'total': dietas.count(),
+        'dietas': dietas_serializadas,
+    }
+
+    return Response(estadisticas, status=200)
 
 """
 Detalle dietas por nivel de riesgo
