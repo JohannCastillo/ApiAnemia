@@ -9,6 +9,7 @@ urlpatterns = [
     path('pacientes/<int:id>', view=paciente.get_paciente_by_id),
     path('pacientes/dni/<int:dni>', view=paciente.get_paciente_by_dni),
     path('pacientes/cnv/<int:cnv>', view=paciente.get_paciente_by_cnv),
+    path('pacientes/apoderado/user', view=paciente.get_pacientes_by_apoderado_user),
     path('pacientes/apoderado/user/create', view=paciente.create_by_user),
     path('pacientes/apoderado/<int:apoderado_id>', view=paciente.get_pacientes_by_apoderado),
     path('pacientes/apoderado/<int:apoderado_id>/create', view=paciente.create),

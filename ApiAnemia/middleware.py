@@ -4,7 +4,8 @@ import base64
 
 protected_endpoints = [
     "/auth/register/google",
-    "/pacientes/apoderado/user/create"
+    "/pacientes/apoderado/user/create",
+    "/pacientes/apoderado/user"
 ]
 
 class AuthMiddleware:

@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from api.models import Paciente, Distrito, Apoderado, Apoderado_Paciente
+from api.pagination.pageable import CustomPagination, paginate_results
 from api.serializers.Paciente import PacienteSerializer, CreatePacienteSerializer
 
 
@@ -18,6 +19,21 @@ def get_pacientes_by_apoderado(request, apoderado_id):
         PacienteSerializer(pacientes, many=True).data
         , status=200
     )
+
+@api_view(['GET'])
+def get_pacientes_by_apoderado_user(request):
+    user = request.userdb
+    apoderado = Apoderado.objects.filter(email=user.email).first()
+    pacientes = Paciente.objects.filter(
+        apoderado_paciente__apoderado_id=apoderado.id)
+    
+    return Response(
+        paginate_results(CustomPagination(), request, pacientes, PacienteSerializer)
+    , status=200)
+    # return Response(
+    #     PacienteSerializer(pacientes, many=True).data
+    #     , status=200
+    # )
 
 @api_view(['GET'])
 def get_paciente_by_id(request, id):
