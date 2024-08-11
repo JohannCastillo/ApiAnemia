@@ -7,6 +7,19 @@ class PacienteSerializer(serializers.ModelSerializer):
         model = Paciente
         fields = "__all__"
 
+class PacienteSerializerList(serializers.ModelSerializer):
+    distrito = serializers.SerializerMethodField()
+    provincia = serializers.SerializerMethodField()
+    
+    def get_distrito(self, obj):
+        return obj.distrito.distrito
+    
+    def get_provincia(self, obj):
+        return obj.distrito.provincia.provincia
+    class Meta :
+        model = Paciente
+        fields = "__all__"
+
 class CreatePacienteSerializer(serializers.ModelSerializer):
     codigo_cnv = serializers.CharField(max_length=20, validators=[
         UniqueValidator(queryset=Paciente.objects.all(), message="El código de certificado de nacido vivo del niño ya se encuentra registrado")]
