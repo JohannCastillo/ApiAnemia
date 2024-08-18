@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from api.models import Paciente, Distrito, Apoderado, Apoderado_Paciente
 from api.pagination.pageable import CustomPagination, paginate_results
-from api.serializers.Paciente import PacienteSerializer, CreatePacienteSerializer, PacienteSerializerList
+from api.serializers.Paciente import PacienteSerializer, CreatePacienteSerializer, PacienteSerializerList, PacienteSerializerMeta
 
 
 @api_view(['GET'])
@@ -39,10 +39,10 @@ def get_pacientes_by_apoderado_user(request):
 @api_view(['GET'])
 def get_paciente_by_id(request, id):
     try:
-        paciente = Paciente.objects.get(id=id)
+        paciente = Paciente.objects.select_related('distrito').get(id=id)
     except Paciente.DoesNotExist:
         return Response({"error": "El paciente no existe"}, status=404)
-    return Response(PacienteSerializer(paciente).data, status=200)
+    return Response(PacienteSerializerMeta(paciente).data, status=200)
 
 @api_view(['GET'])
 def get_paciente_by_dni(request, dni):

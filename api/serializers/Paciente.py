@@ -1,8 +1,22 @@
 from rest_framework import serializers
-from api.models import Paciente
+from api.models import Distrito, Paciente
 from rest_framework.validators import UniqueValidator
 
 class PacienteSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Paciente
+        fields = "__all__"
+
+
+class DistritoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Distrito
+        fields = "__all__"
+class PacienteSerializerMeta(serializers.ModelSerializer):
+    distritoData = serializers.SerializerMethodField()
+
+    def get_distritoData(self, obj):
+        return DistritoSerializer(obj.distrito).data
     class Meta :
         model = Paciente
         fields = "__all__"
