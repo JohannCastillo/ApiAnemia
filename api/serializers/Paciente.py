@@ -54,3 +54,35 @@ class CreatePacienteSerializer(serializers.ModelSerializer):
             'codigo_cnv',
             'dni',
         )
+
+class UpdatePacienteSerializer(serializers.ModelSerializer):
+    codigo_cnv = serializers.CharField(max_length=20)
+    dni = serializers.CharField(max_length=8, required=False)
+    nombre = serializers.CharField(max_length=100)
+    sexo = serializers.CharField(max_length=1)
+    fecha_nacimiento = serializers.DateField()
+    distrito = serializers.IntegerField()
+
+    class Meta:
+        model = Paciente
+        fields = '__all__'
+
+    def validate_codigo_cnv(self, value):
+        # Obtener el ID del objeto que se está editando
+        paciente_id = self.instance.id if self.instance else None
+
+        # Verificar si el código ya existe en otro objeto
+        if Paciente.objects.filter(codigo_cnv=value).exclude(id=paciente_id).exists():
+            raise serializers.ValidationError("El código de certificado de nacido vivo del niño ya se encuentra registrado")
+
+        return value
+    
+    def validate_dni(self, value):
+        # Obtener el ID del objeto que se está editando
+        paciente_id = self.instance.id if self.instance else None
+
+        # Verificar si el dni ya existe en otro objeto
+        if Paciente.objects.filter(dni=value).exclude(id=paciente_id).exists():
+            raise serializers.ValidationError("El dni del niño ya se encuentra registrado")
+
+        return value

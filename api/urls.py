@@ -7,6 +7,7 @@ urlpatterns = [
     # Pacientes
     path('pacientes', view=paciente.index),
     path('pacientes/<int:id>', view=paciente.get_paciente_by_id),
+    path('pacientes/update/<int:id>', view=paciente.update_paciente),
     path('pacientes/dni/<int:dni>', view=paciente.get_paciente_by_dni),
     path('pacientes/cnv/<int:cnv>', view=paciente.get_paciente_by_cnv),
     path('pacientes/apoderado/user', view=paciente.get_pacientes_by_apoderado_user),
