@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "models.apps.ModelsConfig",
     "api.apps.ApiConfig",
+    "email_service.apps.EmailServiceConfig",
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
@@ -154,6 +155,15 @@ else:
         "http://127.0.0.1:3000",
         "https://127.0.0.1",
     ]
+
+# servidor de correo
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # Cargar modelos en primera carga
 import skops.io as sio
