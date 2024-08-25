@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import pronostico, diagnostico, dieta
+from django.urls import path, include
 
 urlpatterns = [
     path('pronostico', view=pronostico.index),

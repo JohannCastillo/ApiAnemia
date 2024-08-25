@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
-from api.models import Diagnostico, Paciente, Nivel_Anemia
-from api.serializers.Diagnostico import DiagnosticoSerializer
+from api.models import Diagnostico, Paciente, Nivel_Anemia, Apoderado
+from api.serializers.Diagnostico import DiagnosticoSerializer, DiagnosticoWeekSerializer
 from api.serializers.Paciente import PacienteSerializer
 from rest_framework.response import Response
 from django.db.models import Count
@@ -9,7 +9,7 @@ from api.pagination.pageable import CustomPagination, paginate_results
 from django.shortcuts import get_object_or_404
 from django.db.models.functions import ExtractYear, ExtractMonth
 from ApiAnemia import settings
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 @api_view(['GET'])
@@ -77,6 +77,29 @@ def estadisticas_por_paciente_id(request, id_paciente):
     }
 
     return Response(estadisticas, status=200)
+
+@api_view(['GET'])
+def diagnosticos_user(request):
+    # Get Id Paciente from query params
+    user = request.userdb
+
+    apoderado = Apoderado.objects.filter(email=user.email).first()
+
+    id_paciente = request.GET.get('id_paciente', None)
+
+    # Calculate the date one week ago
+    one_week_ago = datetime.now() - timedelta(weeks=1)
+
+    diagnosticos = Diagnostico.objects.all().select_related('paciente', 'dx_anemia').order_by('-created_at').filter(
+        paciente__apoderado_paciente__apoderado_id=apoderado.id,
+        created_at__gte=one_week_ago
+    )
+
+    if id_paciente is not None:
+        diagnosticos = diagnosticos.filter(paciente__id=id_paciente)
+
+    return Response(DiagnosticoWeekSerializer(diagnosticos, many=True).data, status=200)
+    
 
 
 """ Devolver estadísticas agrupadas por mes y año de created_at del diagnóstico """

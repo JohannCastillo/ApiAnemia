@@ -45,7 +45,8 @@ def index(request):
         dieta = save_dieta(entradas, resultado, paciente)
         
         return Response({
-            "dieta" : resultado
+            "dieta" : resultado,
+            "id" : dieta.id
         }, status=200)
     except ValueError as e:
         return Response({"error": str(e)}, status=400)

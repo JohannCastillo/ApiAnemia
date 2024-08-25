@@ -4,8 +4,11 @@ import base64
 
 protected_endpoints = [
     "/auth/register/google",
-    "/pacientes/apoderado/user/create"
+    "/pacientes/apoderado/user/create",
+    "/pacientes/apoderado/user",
+    "/diagnosticos/user",
 ]
+
 
 class AuthMiddleware:
     def __init__(self, get_response):
@@ -13,26 +16,27 @@ class AuthMiddleware:
 
     def __call__(self, request):
         print(request.path)
-        if request.path not in protected_endpoints:
-            # Skip the middleware for the /auth endpoint
-            return self.get_response(request)
-        
-        token = request.headers.get('Authorization', None)
 
-        if not token:
-            return HttpResponse('No Autorizado', status=401)
-        
-        if token.startswith('Bearer '):
-            token = token.replace('Bearer ', '')
+        # Verificar si la ruta es parte del módulo chatbots o está en la lista de rutas protegidas
+        if request.path.startswith("/chatbot/") or request.path in protected_endpoints:
+            token = request.headers.get("Authorization", None)
 
-        tokenBytes = base64.b64decode(token)
+            if not token:
+                return HttpResponse("No Autorizado", status=401)
 
-        token = tokenBytes.decode('utf-8')
+            if token.startswith("Bearer "):
+                token = token.replace("Bearer ", "")
 
-        user = Token.objects.get(key=token).user
+            try:
+                tokenBytes = base64.b64decode(token)
+                token = tokenBytes.decode("utf-8")
+                user = Token.objects.get(key=token).user
+                if user:
+                    request.userdb = user
+                    return self.get_response(request)
+            except (Token.DoesNotExist, Exception):
+                pass  # Handle any exceptions, like decoding issues or invalid tokens
 
-        if user:
-            request.userdb = user
-            return self.get_response(request)   
-        
-        return HttpResponse('No Autorizado', status=401)
+            return HttpResponse("No Autorizado", status=401)
+
+        return self.get_response(request)
