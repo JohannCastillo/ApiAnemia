@@ -10,7 +10,7 @@ static_path = os.path.join(BASE_DIR, 'email_service', 'static')
 def send_diagnostic_email(diagnostic, options):
      try:
         email = EmailMultiAlternatives(options['subject'], options['message'], None, [options['to_email']])
-        template = render_to_string('diagnostic_template.html', {
+        template = render_to_string('minified_diagnostic_template.html', {
             'diagnostic': diagnostic,
         })
         email.attach_alternative(template, 'text/html')
