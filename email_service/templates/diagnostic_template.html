@@ -3,11 +3,6 @@
   <head>
     <title>{{ subject }}</title>
     <style type="text/css">
-      .diagnostic-detail-icon {
-        width: 48px;
-        height: 48px;
-        color: #b8272a;
-      }
       @media only screen and (min-width: 620px) {
         .u-row {
           width: 600px !important;
@@ -62,6 +57,9 @@
       table,
       tr,
       td {
+        & h2{
+          line-height: 0;
+        }
         vertical-align: top;
         border-collapse: collapse;
       }
@@ -86,10 +84,6 @@
 
       table,
       td {
-        & p {
-          font-size: 18px;
-          font-weight: 400;
-        }
         color: #000000;
       }
       #u_body a {
@@ -1398,51 +1392,7 @@
                                 >
                                   <strong>Nivel de hemoglobina</strong>
                                 </h1>
-                                <p>{{ diagnostic.hemoglobina }}</p>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-
-                        <table
-                          style="font-family: arial, helvetica, sans-serif"
-                          role="presentation"
-                          cellpadding="0"
-                          cellspacing="0"
-                          width="100%"
-                          border="0"
-                        >
-                          <tbody>
-                            <tr>
-                              <td
-                                class="v-container-padding-padding"
-                                style="
-                                  overflow-wrap: break-word;
-                                  word-break: break-word;
-                                  padding: 10px;
-                                  font-family: arial, helvetica, sans-serif;
-                                "
-                                align="left"
-                              >
-                                <div
-                                  class="v-text-align v-font-size"
-                                  style="
-                                    font-size: 14px;
-                                    line-height: 140%;
-                                    text-align: center;
-                                    word-wrap: break-word;
-                                  "
-                                >
-                                  <p style="font-size: 14px; line-height: 140%">
-                                    Indicador de nivel de hemoglobina en la
-                                    sangre medido en g/dL (gramos por
-                                    decilitro). Los
-                                    <strong>niveles normales</strong> en recién
-                                    nacidos son entre
-                                    <strong>14 a 24 g/dL</strong> y en bebés
-                                    entre <strong>9.5 a 13 g/dL</strong>.
-                                  </p>
-                                </div>
+                                <h2>12 g/dL</h2>
                               </td>
                             </tr>
                           </tbody>
@@ -1557,49 +1507,8 @@
                                     <strong>Peso</strong>
                                   </span>
                                 </h1>
-                                <p>{{ diagnostic.peso }}</p>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-
-                        <table
-                          style="font-family: arial, helvetica, sans-serif"
-                          role="presentation"
-                          cellpadding="0"
-                          cellspacing="0"
-                          width="100%"
-                          border="0"
-                        >
-                          <tbody>
-                            <tr>
-                              <td
-                                class="v-container-padding-padding"
-                                style="
-                                  overflow-wrap: break-word;
-                                  word-break: break-word;
-                                  padding: 10px;
-                                  font-family: arial, helvetica, sans-serif;
-                                "
-                                align="left"
-                              >
-                                <div
-                                  class="v-text-align v-font-size"
-                                  style="
-                                    font-size: 14px;
-                                    line-height: 140%;
-                                    text-align: center;
-                                    word-wrap: break-word;
-                                  "
-                                >
-                                  <p style="font-size: 14px; line-height: 140%">
-                                    Indicador de peso en kilogramos del niño.
-                                    Los <strong>pesos normales</strong> en
-                                    recién nacidos son entre
-                                    <strong>14 a 24 kg</strong> y en bebés entre
-                                    <strong>9.5 a 13 kg</strong>.
-                                  </p>
-                                </div>
+                                <h2
+                                >{{ diagnostic.peso }}</h2>
                               </td>
                             </tr>
                           </tbody>
@@ -1856,46 +1765,7 @@
                                 >
                                   <strong>Talla</strong>
                                 </h1>
-                                <p>{{ diagnostic.talla }}</p>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-
-                        <table
-                          style="font-family: arial, helvetica, sans-serif"
-                          role="presentation"
-                          cellpadding="0"
-                          cellspacing="0"
-                          width="100%"
-                          border="0"
-                        >
-                          <tbody>
-                            <tr>
-                              <td
-                                class="v-container-padding-padding"
-                                style="
-                                  overflow-wrap: break-word;
-                                  word-break: break-word;
-                                  padding: 10px;
-                                  font-family: arial, helvetica, sans-serif;
-                                "
-                                align="left"
-                              >
-                                <div
-                                  class="v-text-align v-font-size"
-                                  style="
-                                    font-size: 14px;
-                                    line-height: 140%;
-                                    text-align: center;
-                                    word-wrap: break-word;
-                                  "
-                                >
-                                  <p style="font-size: 14px; line-height: 140%">
-                                    Lorem ipsum dolor sit amet, ipsum primis
-                                    ligula cursus eget molestie.
-                                  </p>
-                                </div>
+                                <h2>{{ diagnostic.talla }}</h2>
                               </td>
                             </tr>
                           </tbody>
@@ -2010,66 +1880,68 @@
                                     >Control de crecimiento y desarrollo</strong
                                   >
                                 </h1>
-                                <p>
+                                <h2>
                                   {% if diagnostic.cred %}
                                   <span class="v-text-color-green"> Sí </span>
                                   {% else %}
                                   <span class="v-text-color-red"> No </span>
                                   {% endif %}
-                                </p>
+                                </h2>
                               </td>
                             </tr>
                           </tbody>
                         </table>
 
-                        <table
-                          style="font-family: arial, helvetica, sans-serif"
-                          role="presentation"
-                          cellpadding="0"
-                          cellspacing="0"
-                          width="100%"
-                          border="0"
-                        >
-                          <tbody>
-                            <tr>
-                              <td
-                                class="v-container-padding-padding"
-                                style="
-                                  overflow-wrap: break-word;
-                                  word-break: break-word;
-                                  padding: 10px;
-                                  font-family: arial, helvetica, sans-serif;
-                                "
-                                align="left"
-                              >
-                                <div
-                                  class="v-text-align v-font-size"
+                        {% if not diagnostic.cred %}
+                          <table
+                            style="font-family: arial, helvetica, sans-serif"
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            width="100%"
+                            border="0"
+                          >
+                            <tbody>
+                              <tr>
+                                <td
+                                  class="v-container-padding-padding"
                                   style="
-                                    font-size: 14px;
-                                    line-height: 140%;
-                                    text-align: center;
-                                    word-wrap: break-word;
+                                    overflow-wrap: break-word;
+                                    word-break: break-word;
+                                    padding: 10px;
+                                    font-family: arial, helvetica, sans-serif;
                                   "
+                                  align="left"
                                 >
-                                  <p style="font-size: 14px; line-height: 140%">
-                                    Permite la detección temprana de posibles
-                                    problemas nutricionales o de salud,
-                                    incluyendo la anemia. En Perú, estos
-                                    controles se llevan a cabo en los Centros de
-                                    Salud y Hospitales del MINSA, donde se mide
-                                    el peso, la talla y se evalúa el desarrollo
-                                    psicomotor de los niños.
-                                    <a
-                                      href="https://www.gob.pe/32588-control-de-crecimiento-y-desarrollo-cred-para-menores-de-11-anos"
-                                      target="_blank"
-                                      >Leer más</a
-                                    >
-                                  </p>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                                  <div
+                                    class="v-text-align v-font-size"
+                                    style="
+                                      font-size: 14px;
+                                      line-height: 140%;
+                                      text-align: center;
+                                      word-wrap: break-word;
+                                    "
+                                  >
+                                    <p style="font-size: 14px; line-height: 140%">
+                                      Permite la detección temprana de posibles
+                                      problemas nutricionales o de salud,
+                                      incluyendo la anemia. En Perú, estos
+                                      controles se llevan a cabo en los Centros de
+                                      Salud y Hospitales del MINSA, donde se mide
+                                      el peso, la talla y se evalúa el desarrollo
+                                      psicomotor de los niños.
+                                      <a
+                                        href="https://www.gob.pe/32588-control-de-crecimiento-y-desarrollo-cred-para-menores-de-11-anos"
+                                        target="_blank"
+                                        >Leer más</a
+                                      >
+                                    </p>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
@@ -2207,73 +2079,75 @@
                                 >
                                   <strong>Suplementación</strong>
                                 </h1>
-                                <p>
+                                <h2>
                                   {% if diagnostic.suplementacion %}
                                   <span class="v-text-color-green"> Sí </span>
                                   {% else %}
                                   <span class="v-text-color-red"> No </span>
                                   {% endif %}
-                                </p>
+                                </h2>
                               </td>
                             </tr>
                           </tbody>
                         </table>
 
-                        <table
-                          style="font-family: arial, helvetica, sans-serif"
-                          role="presentation"
-                          cellpadding="0"
-                          cellspacing="0"
-                          width="100%"
-                          border="0"
-                        >
-                          <tbody>
-                            <tr>
-                              <td
-                                class="v-container-padding-padding"
-                                style="
-                                  overflow-wrap: break-word;
-                                  word-break: break-word;
-                                  padding: 10px;
-                                  font-family: arial, helvetica, sans-serif;
-                                "
-                                align="left"
-                              >
-                                <div
-                                  class="v-text-align v-font-size"
+                        {% if not diagnostic.suplementacion %}
+                         <table
+                            style="font-family: arial, helvetica, sans-serif"
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            width="100%"
+                            border="0"
+                          >
+                            <tbody>
+                              <tr>
+                                <td
+                                  class="v-container-padding-padding"
                                   style="
-                                    font-size: 14px;
-                                    line-height: 140%;
-                                    text-align: center;
-                                    word-wrap: break-word;
+                                    overflow-wrap: break-word;
+                                    word-break: break-word;
+                                    padding: 10px;
+                                    font-family: arial, helvetica, sans-serif;
                                   "
+                                  align="left"
                                 >
-                                  <p
+                                  <div
+                                    class="v-text-align v-font-size"
                                     style="
                                       font-size: 14px;
                                       line-height: 140%;
-                                      max-width: 320px;
-                                      margin: 0 auto;
+                                      text-align: center;
+                                      word-wrap: break-word;
                                     "
                                   >
-                                    La suplementación en niños de 3 a 65 meses
-                                    es crucial para prevenir la anemia, ya que
-                                    durante esta etapa, el requerimiento de
-                                    hierro aumenta debido al rápido crecimiento
-                                    y desarrollo. En Perú, esta suplementación
-                                    se realiza principalmente a través de
-                                    programas de salud pública.
-                                    <a
-                                      href="https://www.elperuano.pe/noticia/241037-lucha-contra-la-anemia-90-mil-ninos-menores-de-3-anos-reciben-gratis-suplementos-de-hierro"
-                                      target="_blank"
-                                      >Leer más</a
+                                    <p
+                                      style="
+                                        font-size: 14px;
+                                        line-height: 140%;
+                                        max-width: 320px;
+                                        margin: 0 auto;
+                                      "
                                     >
-                                  </p>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                                      La suplementación en niños de 3 a 65 meses
+                                      es crucial para prevenir la anemia, ya que
+                                      durante esta etapa, el requerimiento de
+                                      hierro aumenta debido al rápido crecimiento
+                                      y desarrollo. En Perú, esta suplementación
+                                      se realiza principalmente a través de
+                                      programas de salud pública.
+                                      <a
+                                        href="https://www.elperuano.pe/noticia/241037-lucha-contra-la-anemia-90-mil-ninos-menores-de-3-anos-reciben-gratis-suplementos-de-hierro"
+                                        target="_blank"
+                                        >Leer más</a
+                                      >
+                                    </p>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
