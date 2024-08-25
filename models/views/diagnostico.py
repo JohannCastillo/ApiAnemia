@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from django.conf import settings
 from models.utils.diagnostico_utils import predict, calcular_edad_en_meses
 from models.serializers.Diagnostico import DiagnosticoSerializer
-from api.models import Diagnostico, Paciente, Nivel_Anemia, Apoderado_Paciente, Apoderado
+from api.models import Diagnostico, Paciente, Nivel_Anemia
 import datetime
-from email_service.utils.email import async_send_diagnostic_email
+from models.utils.alerts import alert_diagnostic_to_apoderados
 
 modelo = settings.MODEL_DIAGNOSTICO
 
@@ -42,19 +42,7 @@ def index(request):
         if diagnostico:
             # Dx Anemia != Normal => Enviar email
             if diagnostico.dx_anemia.nivel != "Normal":
-                 # Enviar email a todos los apoderados del paciente
-                try:
-                 apoderados = Apoderado.objects.filter(apoderado_paciente__paciente=paciente)
-                 for apoderado in apoderados:
-                    print(f"Enviando email a : {apoderado.email}")
-            
-                    async_send_diagnostic_email(diagnostico, options={
-                       'to_email': apoderado.email,
-                       'subject': f'Diagnóstico de nivel de anemia del paciente {paciente.nombre}',
-                       'message': 'Resultado de la predicción del modelo de anemia del paciente'
-                    })
-                except Exception as e:
-                    print(f"Error al enviar el email {e}")
+                 alert_diagnostic_to_apoderados(paciente, diagnostico)
                 
             return Response({
             "diagnostico" : resultado
