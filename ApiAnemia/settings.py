@@ -190,18 +190,18 @@ if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
 
         except requests.exceptions.RequestException as e:
             print(f"Error al descargar el modelo obj1: {e}")
-    # else:
+    else:
     # Cargar en local
-    # print("cargando el modelo en local ...")
-    # model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')
-    # MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
+        print("cargando el modelo en local ...")
+        model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')
+        MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
 
-    # print("cargando el modelo obj2 en local ...")
-    # model_obj2_path = os.path.join(BASE_DIR, 'models', 'static', 'obj2.json')
-    # with open(model_obj2_path, 'r') as fin:
-    #     m2 = model_from_json(fin.read())
-    # MODEL_PRONOSTICO = m2
+        print("cargando el modelo obj2 en local ...")
+        model_obj2_path = os.path.join(BASE_DIR, 'models', 'static', 'obj2.json')
+        with open(model_obj2_path, 'r') as fin:
+            m2 = model_from_json(fin.read())
+        MODEL_PRONOSTICO = m2
 
-    # print("cargando el modelo obj3 en local ...")
-    # model_obj3_path = os.path.join(BASE_DIR, 'models', 'static', 'obj3.skops')
-    # MODEL_DIETA = sio.load(file=model_obj3_path)
+        print("cargando el modelo obj3 en local ...")
+        model_obj3_path = os.path.join(BASE_DIR, 'models', 'static', 'obj3.skops')
+        MODEL_DIETA = sio.load(file=model_obj3_path)
