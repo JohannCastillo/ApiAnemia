@@ -5,7 +5,7 @@ from models.utils.diagnostico_utils import predict, calcular_edad_en_meses
 from models.serializers.Diagnostico import DiagnosticoSerializer
 from api.models import Diagnostico, Paciente, Nivel_Anemia
 import datetime
-
+from models.utils.alerts import alert_diagnostic_to_apoderados
 
 modelo = settings.MODEL_DIAGNOSTICO
 
@@ -40,6 +40,10 @@ def index(request):
         diagnostico = save_diagnostico(evaluacion, resultado, paciente)
     
         if diagnostico:
+            # Dx Anemia != Normal => Enviar email
+            if diagnostico.dx_anemia.nivel != "Normal":
+                 alert_diagnostic_to_apoderados(paciente, diagnostico)
+                
             return Response({
             "diagnostico" : resultado
             }, status=200)

@@ -6,4 +6,5 @@ urlpatterns = [
     path("auth/", include("auth.urls")),
     path("predict/", include("models.urls")),
     path("chatbot/", include("chatbot.urls")),
+    path("email/", include("email_service.urls")),
 ]
