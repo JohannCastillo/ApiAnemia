@@ -5,7 +5,7 @@ from models.utils.diagnostico_utils import predict, calcular_edad_en_meses
 from models.serializers.Diagnostico import DiagnosticoSerializer
 from api.models import Diagnostico, Paciente, Nivel_Anemia
 import datetime
-from email_service.utils.email import send_diagnostic_email
+from email_service.utils.email import async_send_diagnostic_email
 
 modelo = settings.MODEL_DIAGNOSTICO
 
@@ -42,11 +42,14 @@ def index(request):
         if diagnostico:
             # Dx Anemia != Normal => Enviar email
             if diagnostico.dx_anemia.nivel != "Normal":
-                send_diagnostic_email(diagnostico, options={
+                try:
+                    async_send_diagnostic_email(diagnostico, options={
                     'to_email': 'johannjco15022@gmail.com',
                     'subject': 'Anemia en el niño',
                     'message': 'Hola, este es un mensaje de prueba'
-                })
+                    })
+                except Exception as e:
+                    print(f"Error al enviar el email {e}")
                 
             return Response({
             "diagnostico" : resultado

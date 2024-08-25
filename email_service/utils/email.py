@@ -1,11 +1,15 @@
 from email.mime.image import MIMEImage
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-
+import threading
 from django.conf import settings
 import os
 BASE_DIR = settings.BASE_DIR
 static_path = os.path.join(BASE_DIR, 'email_service', 'static')
+
+def async_send_diagnostic_email(diagnostic, options):
+    thread = threading.Thread(target=send_diagnostic_email, args=(diagnostic, options))
+    thread.start()
 
 def send_diagnostic_email(diagnostic, options):
      try:
