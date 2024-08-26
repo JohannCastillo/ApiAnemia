@@ -91,20 +91,6 @@ def create_conversation_dieta(request, dieta_id):
     ConversationDieta.objects.create(conversation=conversation, dieta=dieta)
 
     messages = [
-#         {
-#             "role": "system", 
-#             "content": """Brinda recomendaciones para mejorar el nivel de anemia del paciente según su dieta. 
-# El usuario te dara la frecuencia de consumo de ciertos alimentos, estos estarán en un rango
-# de 0 y 7 que significa la cantidad de dias de la semana ha consumido ese alimento. 
-# Previmante, se ha hecho una predicción de la probabilidad que este usuario vaya a tener anemia.
-# Si tiene una buena alimentación, felicítalo e igual brindale algunas recomendaciones 
-# de como puede mejorar.
-# Asegurate de dar recomendaciones cortas.
-# Recomienda algunos platos de Perú que puedan ayudar a mejorar su dieta.
-# El estudio que se hace es hacia niños de 6 a 36 meses.
-# El usuario que ingresa los datos puede ser un padre de familia o apoderado. Pero siempre refierete al hijo como "paciente".
-# Los datos que te dan son de su hijo o cualquier otro paciente."""
-#         },
         {
             "role": "system",
             "content": f"Nombre: {paciente.nombre} - Edad en meses: {meses} - Sexo: {paciente.sexo}"
