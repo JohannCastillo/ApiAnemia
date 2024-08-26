@@ -36,3 +36,4 @@ class GoogleValidateSerializer(serializers.Serializer):
 
 class GoogleRegisterSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
+    telefono = serializers.CharField(required=True)

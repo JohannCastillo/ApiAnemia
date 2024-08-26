@@ -24,6 +24,9 @@ BUCKET_URL_3 = os.getenv("S3_BUCKET_URL_3")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+WHATSAPP_API_URL = os.getenv("WHATSAPP_API_URL")
+WHATSAPP_API_TOKEN = os.getenv("WHATSAPP_API_TOKEN")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

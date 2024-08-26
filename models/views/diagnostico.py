@@ -41,8 +41,8 @@ def index(request):
     
         if diagnostico:
             # Dx Anemia != Normal => Enviar email
-            if diagnostico.dx_anemia.nivel != "Normal":
-                 alert_diagnostic_to_apoderados(paciente, diagnostico)
+            # if diagnostico.dx_anemia.nivel != "Normal":
+            alert_diagnostic_to_apoderados(paciente, diagnostico)
                 
             return Response({
             "diagnostico" : resultado
