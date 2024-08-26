@@ -29,6 +29,7 @@ urlpatterns = [
     path('dietas/historial/', view=dieta.dietas_por_paciente),
     path('dietas/estadisticas/', view=dieta.estadisticas),
     path('dietas/estadisticas/evolucion-mensual', view=dieta.estadisticas_dieta_mes),
+    path('dietas/recomendaciones/<int:dieta_id>', view=dieta.recomendaciones_ia),
 
     # Apoderados
     path('apoderados', view=apoderado.index),

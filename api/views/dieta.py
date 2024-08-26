@@ -138,3 +138,43 @@ def estadisticas_dieta_mes(request):
                     response[i]['baja'] += dieta['baja']
                     break
     return Response(response, status=200)
+
+
+from chatbot.utils.dieta_gpt import RESULTADOS_DIETA, DICTIONARY_DIETA, DIETA_PROMPT
+from chatbot.utils.structured_outputs import get_list_structured_output
+from models.utils.diagnostico_utils import calcular_edad_en_meses
+
+@api_view(['GET'])
+def recomendaciones_ia(request, dieta_id):
+    number_of_suggestions = request.GET.get('numberOfSuggestions', 5)
+    dieta = Dieta.objects.get(id=dieta_id)
+    paciente = dieta.paciente
+    string_dieta = ""
+    meses = calcular_edad_en_meses(paciente.fecha_nacimiento)
+    for key, value in dieta.__dict__.items():
+        if key.startswith("frec"):
+            string_dieta += f"{DICTIONARY_DIETA[key]}: {value}\n" 
+
+    messages = [
+        {
+            "role": "system",
+            "content": f"Datos del paciente: Nombre: {paciente.nombre} - Edad en meses: {meses} - Sexo: {paciente.sexo}"
+        },
+        {
+            "role": "system", 
+            "content": f"Frecuencias de consumo de alimentos: {string_dieta}"
+        }, 
+        {
+            "role": "system",
+            "content": "Predicción del riesgo de anemia según hábitos de consumo hecha por el sistema:" + RESULTADOS_DIETA[dieta.dx_dieta]
+        },{
+            "role": "system",
+            "content": f"Según estos resultados provee una lista de recomendacinoes para mejorar la dieta del paciente con un total de {number_of_suggestions} items como máxmo"
+        }
+    ]
+    result = get_list_structured_output(messages)
+    
+    return Response({
+        "message": result.description,
+        "suggestions": result.items
+    }, status=200)
