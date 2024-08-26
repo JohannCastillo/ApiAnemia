@@ -26,10 +26,16 @@ class ConversationSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "messages", "created_at", "updated_at"]
 
 class ConversationListSerializer(serializers.ModelSerializer):
+    last_message_content = serializers.SerializerMethodField()
+    last_message_time = serializers.DateTimeField(read_only=True)
+    last_message_role = serializers.CharField(read_only=True)
+
+    def get_last_message_content(self, obj):
+        return obj.last_message_content[:100] if obj.last_message_content else ''
 
     class Meta:
         model = Conversation
-        fields = ["id", "created_at", "updated_at", "type"]
+        fields = ['id', 'last_message_content', 'last_message_role', 'last_message_time', "created_at", "updated_at", "type"]
 
 
 class ConversationDetailSerializer(serializers.ModelSerializer):

@@ -18,7 +18,11 @@ class AuthMiddleware:
         print(request.path)
 
         # Verificar si la ruta es parte del módulo chatbots o está en la lista de rutas protegidas
-        if request.path.startswith("/chatbot/") or request.path in protected_endpoints:
+        if (
+            request.path.startswith("/chatbot/")
+            or request.path.startswith("/image-generator/")
+            or request.path in protected_endpoints
+        ):
             token = request.headers.get("Authorization", None)
 
             if not token:

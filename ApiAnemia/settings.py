@@ -24,6 +24,9 @@ BUCKET_URL_3 = os.getenv("S3_BUCKET_URL_3")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+WHATSAPP_API_URL = os.getenv("WHATSAPP_API_URL")
+WHATSAPP_API_TOKEN = os.getenv("WHATSAPP_API_TOKEN")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -57,6 +60,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "chatbot",
+    "image_generator",
 ]
 
 MIDDLEWARE = [
@@ -157,13 +161,13 @@ else:
     ]
 
 # servidor de correo
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # Cargar modelos en primera carga
 import skops.io as sio
@@ -201,17 +205,17 @@ if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
         except requests.exceptions.RequestException as e:
             print(f"Error al descargar el modelo obj1: {e}")
     else:
-    # Cargar en local
+        # Cargar en local
         print("cargando el modelo en local ...")
-        model_obj1_path = os.path.join(BASE_DIR, 'models', 'static', 'obj1.skops')
+        model_obj1_path = os.path.join(BASE_DIR, "models", "static", "obj1.skops")
         MODEL_DIAGNOSTICO = sio.load(file=model_obj1_path)
 
         print("cargando el modelo obj2 en local ...")
-        model_obj2_path = os.path.join(BASE_DIR, 'models', 'static', 'obj2.json')
-        with open(model_obj2_path, 'r') as fin:
+        model_obj2_path = os.path.join(BASE_DIR, "models", "static", "obj2.json")
+        with open(model_obj2_path, "r") as fin:
             m2 = model_from_json(fin.read())
         MODEL_PRONOSTICO = m2
 
         print("cargando el modelo obj3 en local ...")
-        model_obj3_path = os.path.join(BASE_DIR, 'models', 'static', 'obj3.skops')
+        model_obj3_path = os.path.join(BASE_DIR, "models", "static", "obj3.skops")
         MODEL_DIETA = sio.load(file=model_obj3_path)

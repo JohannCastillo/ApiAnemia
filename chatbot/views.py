@@ -10,6 +10,8 @@ from models.utils.diagnostico_utils import calcular_edad_en_meses
 from .models import Conversation, ConversationDieta, ConversationType, Message, RoleMessage
 from .serializers import ConversationDetailSerializer, ConversationListSerializer, ConversationSerializer, MessageSerializer
 from openai import OpenAI
+from django.db.models import Max, Subquery, OuterRef
+
 from django.conf import (
     settings,
 )  # Para obtener las configuraciones de tu archivo settings.py
@@ -51,13 +53,24 @@ def get_conversation_details(request, id):
         "conversation": ConversationDetailSerializer(conversation).data
     })
 
+
 @api_view(["GET"])
 def get_conversations(request):
     user = request.userdb
-    conversations = Conversation.objects.filter(user=user)
+    last_message_subquery = Message.objects.filter(
+        conversation=OuterRef('pk'),
+        role__in=[RoleMessage.USER, RoleMessage.BOT]
+    ).order_by('-created_at').values('content', 'role')[:1]
+
+    conversations = Conversation.objects.filter(user=user).annotate(
+        last_message_time=Max('messages__created_at'),
+        last_message_content=Subquery(last_message_subquery.values('content')[:1]),
+        last_message_role=Subquery(last_message_subquery.values('role')[:1])
+    ).order_by('-last_message_time')
     return Response(
-        paginate_results(CustomPagination(), request, conversations, ConversationListSerializer)
-    , status=200)
+        paginate_results(CustomPagination(), request, conversations, ConversationListSerializer),
+        status=200
+    )
 
 
 @api_view(["POST"])
@@ -96,8 +109,8 @@ def create_conversation_dieta(request, dieta_id):
             "content": f"Nombre: {paciente.nombre} - Edad en meses: {meses} - Sexo: {paciente.sexo}"
         },
         {
-            "role": "user", 
-            "content": string_dieta
+            "role": "system", 
+            "content": f"Datos del paciente: {string_dieta}"
         }, 
         {
             "role": "system",
