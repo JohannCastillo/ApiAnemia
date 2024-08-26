@@ -7,4 +7,5 @@ urlpatterns = [
     path("predict/", include("models.urls")),
     path("chatbot/", include("chatbot.urls")),
     path("email/", include("email_service.urls")),
+    path("image-generator/", include("image_generator.urls")),
 ]
