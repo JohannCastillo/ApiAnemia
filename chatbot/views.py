@@ -3,11 +3,11 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 
-from api.models import Dieta
+from api.models import Diagnostico, Dieta
 from api.pagination.pageable import CustomPagination, paginate_results
-from chatbot.utils.dieta_gpt import DICTIONARY_DIETA, DIETA_PROMPT, RESULTADOS_DIETA
+from chatbot.utils.dieta_gpt import DIAGNOSTICO_PROMPT, DICTIONARY_DIETA, DIETA_PROMPT, RESULTADOS_DIETA
 from models.utils.diagnostico_utils import calcular_edad_en_meses
-from .models import Conversation, ConversationDieta, ConversationType, Message, RoleMessage
+from .models import Conversation, ConversationDiagnostico, ConversationDieta, ConversationType, Message, RoleMessage
 from .serializers import ConversationDetailSerializer, ConversationListSerializer, ConversationSerializer, MessageSerializer
 from openai import OpenAI
 from django.db.models import Max, Subquery, OuterRef
@@ -127,6 +127,52 @@ def create_conversation_dieta(request, dieta_id):
         "conversation_id": conversation.id
     })
 
+   
+@api_view(["POST"])
+def create_conversation_diagnostico(request, diag_id):
+    user = request.userdb
+
+    diagnostico = Diagnostico.objects.select_related("paciente").get(id=diag_id)
+
+    paciente = diagnostico.paciente
+
+    string_paciente = f"""
+hemoglobina: {diagnostico.hemoglobina}
+peso: {diagnostico.peso} cm
+talla: {diagnostico.talla} Kg
+Control de desarrollo y crecimiento: {'Sí' if diagnostico.cred else 'No'}
+Suplementación: {'Sí' if diagnostico.suplementacion else 'No'}
+"""
+    meses = calcular_edad_en_meses(paciente.fecha_nacimiento)
+
+    conversation = Conversation.objects.create(user=user, type=ConversationType.DIAGNOSTICO)
+
+    ConversationDiagnostico.objects.create(conversation=conversation, diagnostico=diagnostico)
+
+    messages = [
+        {
+            "role": "system",
+            "content": f"Nombre: {paciente.nombre} - Edad en meses: {meses} - Sexo: {paciente.sexo}"
+        },
+        {
+            "role": "system", 
+            "content": f"Datos del paciente: {string_paciente}"
+        }, 
+        {
+            "role": "system",
+            "content": "Predicción hecha por el sistema " + diagnostico.dx_anemia.nivel
+        }
+    ]
+
+    for message in messages:
+        Message.objects.create(
+            conversation=conversation, content=message["content"], role=message["role"]
+        )
+
+    return Response({
+        "conversation_id": conversation.id
+    })
+
 
 @api_view(["GET"])
 def get_conversation(request, user_id, pk):
@@ -186,6 +232,8 @@ def get_bot_response(conversation: Conversation):
         # Agregar un mensaje del sistema opcional para establecer el comportamiento del asistente
         if conversation.type == ConversationType.DIETA:
             chat_history.append({"role": "system", "content": DIETA_PROMPT})
+        elif conversation.type == ConversationType.DIAGNOSTICO:
+            chat_history.append({"role": "system", "content": DIAGNOSTICO_PROMPT})
 
         # Iterar sobre los mensajes de la conversación y agregar al historial
         for message in messages:
