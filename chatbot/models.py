@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from api.models import Dieta
+from api.models import Diagnostico, Dieta
 
 class ConversationType(models.TextChoices):
     DIETA = 'dieta', 'Dieta'
     CHAT = 'chat', 'Chat'
+    DIAGNOSTICO = 'diagnostico', 'Diagnostico'
 
 class Conversation(models.Model):
     user = models.ForeignKey(
@@ -14,7 +15,7 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     type = models.CharField(
-        max_length=10,
+        max_length=15,
         choices=ConversationType.choices,
         default=ConversationType.CHAT,
     )
@@ -26,6 +27,15 @@ class ConversationDieta(models.Model):
     dieta = models.ForeignKey(
         Dieta, on_delete=models.CASCADE, related_name="conversation"
     )
+
+class ConversationDiagnostico(models.Model):
+    conversation = models.OneToOneField(
+        Conversation, on_delete=models.CASCADE, related_name="diagnostico"
+    )
+    diagnostico = models.ForeignKey(
+        Diagnostico, on_delete=models.CASCADE, related_name="conversation"
+    )
+
 
 
 from django.db import models

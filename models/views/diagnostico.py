@@ -45,7 +45,8 @@ def index(request):
             alert_diagnostic_to_apoderados(paciente, diagnostico)
                 
             return Response({
-            "diagnostico" : resultado
+            "diagnostico" : resultado,
+            "id": diagnostico.id
             }, status=200)
         else:
             return Response({"error": "No se pudo guardar el diagnóstico"}, status=500)

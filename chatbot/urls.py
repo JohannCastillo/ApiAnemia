@@ -13,6 +13,11 @@ urlpatterns = [
         name="create_conversation",
     ),
     path(
+        "conversations/create/diagnostico/<int:diag_id>",
+        views.create_conversation_diagnostico,
+        name="create_conversation",
+    ),
+    path(
         "conversations/<int:id>/",
         views.get_conversation_details,
         name="get_conversation",
