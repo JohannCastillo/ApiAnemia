@@ -160,6 +160,7 @@ def complete_user_register(request):
         new_apoderado = Apoderado(
             nombre=serializer.data['name'],
             email=user.email,
+            telefono=serializer.data['telefono'],
             usuario=user,
             dni = None,
         )
