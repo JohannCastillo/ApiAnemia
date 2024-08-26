@@ -28,7 +28,7 @@ urlpatterns = [
         name="get_conversation",
     ),
     path(
-        "conversations/<int:user_id>/create/",
+        "conversations/create",
         views.create_conversation,
         name="create_conversation",
     ),

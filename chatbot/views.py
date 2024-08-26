@@ -74,8 +74,9 @@ def get_conversations(request):
 
 
 @api_view(["POST"])
-def create_conversation(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+def create_conversation(request):
+    user = request.userdb
+    user = get_object_or_404(User, id=user.id)
     serializer = ConversationSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(user=user)
@@ -195,7 +196,7 @@ def chat(request, conv_id):
 
     messages = Message.objects.filter(conversation=conversation)
 
-    if messages.count() <= 3:
+    if messages.count() <= 3 and conversation.type != ConversationType.CHAT:
         pass
     else :
         user_message = request.data.get("message")
