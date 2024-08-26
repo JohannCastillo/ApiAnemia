@@ -10,6 +10,8 @@ from models.utils.diagnostico_utils import calcular_edad_en_meses
 from .models import Conversation, ConversationDieta, ConversationType, Message, RoleMessage
 from .serializers import ConversationDetailSerializer, ConversationListSerializer, ConversationSerializer, MessageSerializer
 from openai import OpenAI
+from django.db.models import Max, Subquery, OuterRef
+
 from django.conf import (
     settings,
 )  # Para obtener las configuraciones de tu archivo settings.py
@@ -51,13 +53,24 @@ def get_conversation_details(request, id):
         "conversation": ConversationDetailSerializer(conversation).data
     })
 
+
 @api_view(["GET"])
 def get_conversations(request):
     user = request.userdb
-    conversations = Conversation.objects.filter(user=user)
+    last_message_subquery = Message.objects.filter(
+        conversation=OuterRef('pk'),
+        role__in=[RoleMessage.USER, RoleMessage.BOT]
+    ).order_by('-created_at').values('content', 'role')[:1]
+
+    conversations = Conversation.objects.filter(user=user).annotate(
+        last_message_time=Max('messages__created_at'),
+        last_message_content=Subquery(last_message_subquery.values('content')[:1]),
+        last_message_role=Subquery(last_message_subquery.values('role')[:1])
+    ).order_by('-last_message_time')
     return Response(
-        paginate_results(CustomPagination(), request, conversations, ConversationListSerializer)
-    , status=200)
+        paginate_results(CustomPagination(), request, conversations, ConversationListSerializer),
+        status=200
+    )
 
 
 @api_view(["POST"])
@@ -91,27 +104,13 @@ def create_conversation_dieta(request, dieta_id):
     ConversationDieta.objects.create(conversation=conversation, dieta=dieta)
 
     messages = [
-#         {
-#             "role": "system", 
-#             "content": """Brinda recomendaciones para mejorar el nivel de anemia del paciente según su dieta. 
-# El usuario te dara la frecuencia de consumo de ciertos alimentos, estos estarán en un rango
-# de 0 y 7 que significa la cantidad de dias de la semana ha consumido ese alimento. 
-# Previmante, se ha hecho una predicción de la probabilidad que este usuario vaya a tener anemia.
-# Si tiene una buena alimentación, felicítalo e igual brindale algunas recomendaciones 
-# de como puede mejorar.
-# Asegurate de dar recomendaciones cortas.
-# Recomienda algunos platos de Perú que puedan ayudar a mejorar su dieta.
-# El estudio que se hace es hacia niños de 6 a 36 meses.
-# El usuario que ingresa los datos puede ser un padre de familia o apoderado. Pero siempre refierete al hijo como "paciente".
-# Los datos que te dan son de su hijo o cualquier otro paciente."""
-#         },
         {
             "role": "system",
             "content": f"Nombre: {paciente.nombre} - Edad en meses: {meses} - Sexo: {paciente.sexo}"
         },
         {
-            "role": "user", 
-            "content": string_dieta
+            "role": "system", 
+            "content": f"Datos del paciente: {string_dieta}"
         }, 
         {
             "role": "system",
