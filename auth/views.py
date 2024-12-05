@@ -72,7 +72,7 @@ def google_login(request):
         user = User.objects.create_user(
             username=response['email'],
             email=response['email'], 
-            password= make_password(BaseUserManager().make_random_password()),
+            password= make_password("123456789"),
         )
         user.save()
     
@@ -131,7 +131,7 @@ def google_search_user(request):
         user = User.objects.create_user(
             username=response['email'],
             email=response['email'], 
-            password= make_password(BaseUserManager().make_random_password()),
+            password= make_password("123456789"),
         )
         user.save()
         return Response({
